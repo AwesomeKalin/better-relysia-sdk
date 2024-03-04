@@ -1,0 +1,29 @@
+name: Upload to Archive.org
+on: push
+
+jobs:
+  job:
+    name: Upload
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          pip install internetarchive          
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+            
+      - name: Create bundle
+        run: git bundle create better-relysia-sdk-${{ github.sha }}.bundle --all
+
+      - name: Upload file to archive.org
+        run: |
+          ia configure -u ${{ secrets.IA_USER }} -p ${{ secrets.IA_PWD }}
+          ia upload better-relysia-sdk-${{ github.sha }} better-relysia-sdk-${{ github.sha }}.bundle --metadata="mediatype:software" --metadata="creator:AwesomeKalin55" --metadata="title:better-relysia-sdk-${{ github.sha }}" --metadata="scanner:Better Relysia SDK Auto-Archive" --metadata="collection:open_source_software" --metadata="subject:blockchain;bsv;btc;sdk;relysia;api;node;javascript;typescript;AwesomeKalin55;vaionex" --metadata="originalurl:https://github.com/AwesomeKalin/better-relysia-sdk" --retries 20          
