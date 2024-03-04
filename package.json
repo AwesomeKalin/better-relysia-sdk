@@ -1,0 +1,17 @@
+{
+  "name": "better-relysia-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "np": "^10.0.0",
+    "typescript": "^5.3.3"
+  }
+}
