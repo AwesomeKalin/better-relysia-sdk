@@ -1,3 +1,4 @@
+import { RelysiaProfile } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -8,6 +9,12 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<void>}
      */
     private checkAuth;
+    /**
+     * Gets the user profile from Relysia.
+     * @public
+     * @returns {Promise<RelysiaProfile>}
+     */
+    getUserProfile(): Promise<RelysiaProfile>;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

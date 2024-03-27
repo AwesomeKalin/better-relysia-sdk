@@ -20,6 +20,7 @@ class BetterRelysiaSDK {
                 email: this.email,
                 password: this.password,
             }),
+            headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json', }),
         });
         this.authTimestamp = Date.now();
         const body = await response.json();
@@ -27,6 +28,37 @@ class BetterRelysiaSDK {
             return this.checkAuth();
         }
         this.authToken = body.data.token;
+    }
+    /**
+     * Gets the user profile from Relysia.
+     * @public
+     * @returns {Promise<RelysiaProfile>}
+     */
+    async getUserProfile() {
+        await this.checkAuth();
+        const response = await fetch('https://api.relysia.com/v1/user', {
+            method: 'GET',
+            headers: new Headers({ accept: 'application/json', authToken: this.authToken }),
+        });
+        if (response.status !== 200) {
+            return this.getUserProfile();
+        }
+        let body = await response.json();
+        //@ts-expect-error
+        const unprocessedDetails = body.data.userDetails;
+        body.data.userDetails = {
+            userId: unprocessedDetails.userId,
+            passwordHash: unprocessedDetails.passwordHash,
+            passwordUpdatedAt: new Date(unprocessedDetails.passwordUpdatedAt),
+            validSince: new Date(unprocessedDetails.validSince),
+            lastLoginAt: new Date(unprocessedDetails.lastLoginAt),
+            createdAt: new Date(unprocessedDetails.createdAt),
+            lastRefreshAt: new Date(unprocessedDetails.lastRefreshAt),
+            photo: unprocessedDetails.photo,
+            displayName: unprocessedDetails.displayName,
+            phoneNumber: unprocessedDetails.phoneNumber,
+        };
+        return body;
     }
 }
 exports.BetterRelysiaSDK = BetterRelysiaSDK;
@@ -43,7 +75,7 @@ async function authenticate(email, password) {
             email,
             password,
         }),
-        headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json' }),
+        headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json', }),
     });
     let toReturn = new BetterRelysiaSDK();
     toReturn.authTimestamp = Date.now();
