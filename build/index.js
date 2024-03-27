@@ -6,6 +6,13 @@ class BetterRelysiaSDK {
     authTimestamp;
     email;
     password;
+    /**
+    * Authenticate with the Relysia API. Does not support OAuth.
+     * @public
+     * @param {string} email Email address of the Relysia account
+     * @param {string} password Password of the Relysia account
+     * @returns {Promise<'Incorrect Password' | BetterRelysiaSDK>}
+     */
     async authenticate(email, password) {
         const response = await fetch('https://api.relysia.com/v1/auth', {
             method: 'POST',
@@ -27,6 +34,10 @@ class BetterRelysiaSDK {
         this.authToken = body.data.token;
         return this;
     }
+    /**
+     * @private
+     * @returns {Promise<void>}
+     */
     async checkAuth() {
         if (this.authTimestamp <= Date.now() - 600000) {
             return;

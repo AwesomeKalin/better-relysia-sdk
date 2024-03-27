@@ -6,7 +6,12 @@ export class BetterRelysiaSDK {
     email: string;
     password: string;
 
-    public async authenticate(email: string, password: string): Promise<string | BetterRelysiaSDK> {
+    /**
+    * Authenticate with the Relysia API. Does not support OAuth.
+    * @param email Email address of the Relysia account
+    * @param password Password of the Relysia account
+    */
+    public async authenticate(email: string, password: string): Promise<'Incorrect Password' | BetterRelysiaSDK> {
         const response: Response = await fetch('https://api.relysia.com/v1/auth', {
             method: 'POST',
             body: JSON.stringify({

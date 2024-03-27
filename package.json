@@ -5,9 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "ts-to-jsdoc -p tsconfig.json"
   },
-  "keywords": ["relysia", "blockchain", "BSV", "Bitcoin", "Bitcoin SV"],
+  "keywords": [
+    "relysia",
+    "blockchain",
+    "BSV",
+    "Bitcoin",
+    "Bitcoin SV"
+  ],
   "author": "AwesomeKalin55",
   "license": "MIT",
   "devDependencies": {
@@ -15,6 +21,7 @@
     "@typescript-eslint/parser": "^7.1.1",
     "eslint": "^8.57.0",
     "np": "^10.0.0",
+    "ts-to-jsdoc": "^2.1.0",
     "typescript": "^5.3.3"
   }
 }
