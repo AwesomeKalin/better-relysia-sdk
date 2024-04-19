@@ -66,7 +66,7 @@ exports.BetterRelysiaSDK = BetterRelysiaSDK;
     * Authenticate with the Relysia API. Does not support OAuth.
  * @param {string} email Email address of the Relysia account
  * @param {string} password Password of the Relysia account
- * @returns {Promise<'Incorrect Password' | BetterRelysiaSDK>}
+ * @returns {Promise<'Incorrect Password' | BetterRelysiaSDK | 'Account doesn\'t exist'>}
  */
 async function authenticate(email, password) {
     const response = await fetch('https://api.relysia.com/v1/auth', {
@@ -82,6 +82,12 @@ async function authenticate(email, password) {
     const body = await response.json();
     if (body.data.msg === 'INVALID_PASSWORD') {
         return 'Incorrect Password';
+    }
+    if (body.data.msg === 'EMAIL_NOT_FOUND') {
+        return 'Account doesn\'t exist';
+    }
+    if (body.data.msg === "body/email must match format \"email\"") {
+        return 'Account doesn\'t exist';
     }
     toReturn.email = email;
     toReturn.password = password;

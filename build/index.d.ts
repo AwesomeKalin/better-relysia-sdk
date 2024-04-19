@@ -20,6 +20,6 @@ export declare class BetterRelysiaSDK {
     * Authenticate with the Relysia API. Does not support OAuth.
  * @param {string} email Email address of the Relysia account
  * @param {string} password Password of the Relysia account
- * @returns {Promise<'Incorrect Password' | BetterRelysiaSDK>}
+ * @returns {Promise<'Incorrect Password' | BetterRelysiaSDK | 'Account doesn\'t exist'>}
  */
-export declare function authenticate(email: string, password: string): Promise<'Incorrect Password' | BetterRelysiaSDK>;
+export declare function authenticate(email: string, password: string): Promise<'Incorrect Password' | BetterRelysiaSDK | 'Account doesn\'t exist'>;

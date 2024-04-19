@@ -71,7 +71,7 @@ export class BetterRelysiaSDK {
     * @param email Email address of the Relysia account
     * @param password Password of the Relysia account
     */
-export async function authenticate(email: string, password: string): Promise<'Incorrect Password' | BetterRelysiaSDK> {
+export async function authenticate(email: string, password: string): Promise<'Incorrect Password' | BetterRelysiaSDK | 'Account doesn\'t exist'> {
     const response: Response = await fetch('https://api.relysia.com/v1/auth', {
         method: 'POST',
         body: JSON.stringify({
@@ -89,6 +89,14 @@ export async function authenticate(email: string, password: string): Promise<'In
 
     if (body.data.msg === 'INVALID_PASSWORD') {
         return 'Incorrect Password';
+    }
+
+    if (body.data.msg === 'EMAIL_NOT_FOUND') {
+        return 'Account doesn\'t exist';
+    }
+
+    if (body.data.msg === "body/email must match format \"email\"") {
+        return 'Account doesn\'t exist';
     }
 
     toReturn.email = email;
