@@ -6,6 +6,7 @@ class BetterRelysiaSDK {
     authTimestamp;
     email;
     password;
+    retries;
     /**
      * @private
      * @returns {Promise<void>}
@@ -66,9 +67,10 @@ exports.BetterRelysiaSDK = BetterRelysiaSDK;
     * Authenticate with the Relysia API. Does not support OAuth.
  * @param {string} email Email address of the Relysia account
  * @param {string} password Password of the Relysia account
+ * @param {number} [retries=20] Number of retries that requests should do
  * @returns {Promise<'Incorrect Password' | BetterRelysiaSDK | 'Account doesn\'t exist'>}
  */
-async function authenticate(email, password) {
+async function authenticate(email, password, retries = 20) {
     const response = await fetch('https://api.relysia.com/v1/auth', {
         method: 'POST',
         body: JSON.stringify({
@@ -91,10 +93,53 @@ async function authenticate(email, password) {
     }
     toReturn.email = email;
     toReturn.password = password;
+    toReturn.retries = retries;
     if (response.status !== 200) {
-        return authenticate(email, password);
+        return authenticateAfterFail(email, password, retries, retries - 1);
     }
     toReturn.authToken = body.data.token;
     return toReturn;
 }
 exports.authenticate = authenticate;
+/**
+ * @param {string} email
+ * @param {string} password
+ * @param {number} retries
+ * @param {number} retriesLeft
+ * @returns {Promise<'Incorrect Password' | BetterRelysiaSDK | 'Account doesn\'t exist'>}
+ */
+async function authenticateAfterFail(email, password, retries, retriesLeft) {
+    const response = await fetch('https://api.relysia.com/v1/auth', {
+        method: 'POST',
+        body: JSON.stringify({
+            email,
+            password,
+        }),
+        headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json', }),
+    });
+    let toReturn = new BetterRelysiaSDK();
+    toReturn.authTimestamp = Date.now();
+    const body = await response.json();
+    if (body.data.msg === 'INVALID_PASSWORD') {
+        return 'Incorrect Password';
+    }
+    if (body.data.msg === 'EMAIL_NOT_FOUND') {
+        return 'Account doesn\'t exist';
+    }
+    if (body.data.msg === "body/email must match format \"email\"") {
+        return 'Account doesn\'t exist';
+    }
+    toReturn.email = email;
+    toReturn.password = password;
+    toReturn.retries = retries;
+    if (response.status !== 200) {
+        if (retriesLeft !== 0) {
+            return authenticateAfterFail(email, password, retries, retriesLeft - 1);
+        }
+        else {
+            return undefined;
+        }
+    }
+    toReturn.authToken = body.data.token;
+    return toReturn;
+}
