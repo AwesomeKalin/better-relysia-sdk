@@ -1,4 +1,4 @@
-import { RelysiaAuth, RelysiaProfile, RelysiaUserDetailsUnproccessed } from "./types";
+import { CreateWalletOpt, RelysiaAuth, RelysiaBasic, RelysiaCreateWallet, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -28,7 +28,7 @@ export class BetterRelysiaSDK {
 
         if (response.status !== 200) {
             this.retriesLeft--;
-            if (this.retriesLeft < 0) {
+            if (this.retriesLeft > 0) {
                 return this.checkAuth();
             }
 
@@ -41,7 +41,7 @@ export class BetterRelysiaSDK {
     /**
      * Gets the user profile from Relysia.
      */
-    public async getUserProfile(): Promise<RelysiaProfile | 'Reached Max Attempts'> {
+    public async getUserProfile(): Promise<RelysiaUserProfileData | 'Reached Max Attempts'> {
         this.retriesLeft = this.retries;
         const verifyCheck: void | false = await this.checkAuth();
         if (verifyCheck === false) {
@@ -55,10 +55,10 @@ export class BetterRelysiaSDK {
 
         if (response.status !== 200) {
             this.retriesLeft--;
-            return this.getUserProfile();
+            return this.getUserProfileRepeat();
         }
 
-        let body: RelysiaProfile = await response.json();
+        let body: RelysiaBasic<RelysiaUserProfileData> = await response.json();
         //@ts-expect-error
         const unprocessedDetails: RelysiaUserDetailsUnproccessed = body.data.userDetails;
         body.data.userDetails = {
@@ -74,10 +74,10 @@ export class BetterRelysiaSDK {
             phoneNumber: unprocessedDetails.phoneNumber,
         };
 
-        return body;
+        return body.data;
     }
 
-    private async getUserProfileRepeat(): Promise<RelysiaProfile | 'Reached Max Attempts'> {
+    private async getUserProfileRepeat(): Promise<RelysiaUserProfileData | 'Reached Max Attempts'> {
         const response: Response = await fetch('https://api.relysia.com/v1/user', {
             method: 'GET',
             headers: new Headers({ accept: 'application/json', authToken: this.authToken }),
@@ -85,14 +85,14 @@ export class BetterRelysiaSDK {
 
         if (response.status !== 200) {
             this.retriesLeft--;
-            if (this.retriesLeft < 0) {
+            if (this.retriesLeft > 0) {
                 return this.getUserProfileRepeat();
             }
 
             return 'Reached Max Attempts';
         }
 
-        let body: RelysiaProfile = await response.json();
+        let body: RelysiaBasic<RelysiaUserProfileData> = await response.json();
         //@ts-expect-error
         const unprocessedDetails: RelysiaUserDetailsUnproccessed = body.data.userDetails;
         body.data.userDetails = {
@@ -108,7 +108,107 @@ export class BetterRelysiaSDK {
             phoneNumber: unprocessedDetails.phoneNumber,
         };
 
-        return body;
+        return body.data;
+    }
+
+    /**
+     * Creates a new Relysia wallet.
+     * @param walletTitle The title of the wallet.
+     */
+    public async createWallet(walletTitle: string, opt?: CreateWalletOpt): Promise<"Reached Max Attempts" | "Invalid Mnemonic!" | "Paymail in incorrect format!" | "Invalid wallet type!" | "Not a URL!" | RelysiaCreateWallet> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+            walletTitle,
+        });
+
+        if (opt?.mnemonicPhrase !== undefined) {
+            headers.set('mnemonicPhrase', opt.mnemonicPhrase);
+        }
+
+        if (opt?.paymail !== undefined) {
+            headers.set('paymail', `${opt.paymail}@relysia.com`);
+        }
+
+        if (opt?.paymailActivate !== undefined) {
+            headers.set('paymailActivate', opt.paymailActivate);
+        }
+
+        if (opt?.type !== undefined) {
+            headers.set('type', opt.type);
+        }
+
+        if (opt?.walletLogo !== undefined) {
+            headers.set('walletLogo', opt.walletLogo);
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/createWallet', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaCreateWallet> = await response.json();
+        if (body.data.msg === 'invalid mnemonic phrase') {
+            return 'Invalid Mnemonic!';
+        } else if (body.data.msg === "please write correct paymail, 'example@relysia.com'") {
+            return 'Paymail in incorrect format!';
+        } else if (body.data.msg === 'we support only "STANDARD or ESCROW" wallet type !') {
+            return 'Invalid wallet type!';
+        } else if (body.data.msg === 'headers/walletlogo must match format "uri"') {
+            return 'Not a URL!';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.createWalletRepeat(walletTitle, opt);
+        }
+
+        return body.data;
+    }
+
+    private async createWalletRepeat(walletTitle: string, opt?: CreateWalletOpt): Promise<"Reached Max Attempts" | "Invalid Mnemonic!" | "Paymail in incorrect format!" | "Invalid wallet type!" | "Not a URL!" | RelysiaCreateWallet> {
+        const response: Response = await fetch('https://api.relysia.com/v1/createWallet', {
+            method: 'GET',
+            headers: new Headers({
+                accept: 'application/json',
+                authToken: this.authToken,
+                walletTitle,
+                mnemonicPhrase: opt.mnemonicPhrase,
+                paymail: `${opt.paymail}@relysia.com`,
+                paymailActivate: opt.paymailActivate,
+                type: opt.type,
+                walletLogo: opt.walletLogo,
+            })
+        });
+
+        const body: RelysiaBasic<RelysiaCreateWallet> = await response.json();
+        if (body.data.msg === 'invalid mnemonic phrase') {
+            return 'Invalid Mnemonic!';
+        } else if (body.data.msg === "please write correct paymail, 'example@relysia.com'") {
+            return 'Paymail in incorrect format!';
+        } else if (body.data.msg === 'we support only "STANDARD or ESCROW" wallet type !') {
+            return 'Invalid wallet type!';
+        } else if (body.data.msg === 'headers/walletlogo must match format "uri"') {
+            return 'Not a URL!';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.createWalletRepeat(walletTitle, opt);
+            }
+
+            return 'Reached Max Attempts';
+        }
+
+        return body.data;
     }
 }
 
@@ -191,7 +291,7 @@ async function authenticateAfterFail(email: string, password: string, retries: n
     toReturn.retries = retries;
 
     if (response.status !== 200) {
-        if (retriesLeft !== 0) {
+        if (retriesLeft > 0) {
             return authenticateAfterFail(email, password, retries, retriesLeft - 1);
         } else {
             return undefined;
