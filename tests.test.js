@@ -28,4 +28,12 @@ test('creating wallet', () => {
             expect(data.status).toEqual('success');
         });
     });
-})
+});
+
+test('get wallet address', () => {
+    return BetterRelysiaSDK.authenticate('satoshiasdsa@gmail.com', '4m4z1ngT3ch').then(data => {
+        data.getAddress().then(data => {
+            expect(data.status).toEqual('success');
+        });
+    });
+});

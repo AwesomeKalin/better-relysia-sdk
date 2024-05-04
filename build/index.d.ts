@@ -1,4 +1,4 @@
-import { CreateWalletOpt, RelysiaCreateWallet, RelysiaUserProfileData } from "./types";
+import { CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaUserProfileData } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -37,6 +37,19 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<"Reached Max Attempts" | "Invalid Mnemonic!" | "Paymail in incorrect format!" | "Invalid wallet type!" | "Not a URL!" | RelysiaCreateWallet>}
      */
     private createWalletRepeat;
+    /**
+     * Get an address and the paymail for a specified wallet.
+     * @public
+     * @param {string} [walletId] The Wallet ID that you wish to get the address for. Defaults to default wallet if not specified
+     * @returns {Promise<RelysiaGetAddress | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    getAddress(walletId?: string): Promise<RelysiaGetAddress | 'Reached Max Attempts' | 'Non-existant wallet'>;
+    /**
+     * @private
+     * @param {string} [walletId]
+     * @returns {Promise<RelysiaGetAddress | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    private getAddressRepeat;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

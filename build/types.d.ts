@@ -123,3 +123,16 @@ export type RelysiaCreateWallet = {
     walletId: string;
     paymail: string;
 };
+/**
+ * @typedef {Object} RelysiaGetAddress
+ * @property {status} status
+ * @property {string} msg
+ * @property {string} address
+ * @property {string} paymail
+ */
+export type RelysiaGetAddress = {
+    status: status;
+    msg: string;
+    address: string;
+    paymail: string;
+};

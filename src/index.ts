@@ -1,4 +1,4 @@
-import { CreateWalletOpt, RelysiaAuth, RelysiaBasic, RelysiaCreateWallet, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData } from "./types";
+import { CreateWalletOpt, RelysiaAuth, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -155,6 +155,7 @@ export class BetterRelysiaSDK {
         });
 
         const body: RelysiaBasic<RelysiaCreateWallet> = await response.json();
+
         if (body.data.msg === 'invalid mnemonic phrase') {
             return 'Invalid Mnemonic!';
         } else if (body.data.msg === "please write correct paymail, 'example@relysia.com'") {
@@ -174,21 +175,39 @@ export class BetterRelysiaSDK {
     }
 
     private async createWalletRepeat(walletTitle: string, opt?: CreateWalletOpt): Promise<"Reached Max Attempts" | "Invalid Mnemonic!" | "Paymail in incorrect format!" | "Invalid wallet type!" | "Not a URL!" | RelysiaCreateWallet> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+            walletTitle,
+        });
+
+        if (opt?.mnemonicPhrase !== undefined) {
+            headers.set('mnemonicPhrase', opt.mnemonicPhrase);
+        }
+
+        if (opt?.paymail !== undefined) {
+            headers.set('paymail', `${opt.paymail}@relysia.com`);
+        }
+
+        if (opt?.paymailActivate !== undefined) {
+            headers.set('paymailActivate', opt.paymailActivate);
+        }
+
+        if (opt?.type !== undefined) {
+            headers.set('type', opt.type);
+        }
+
+        if (opt?.walletLogo !== undefined) {
+            headers.set('walletLogo', opt.walletLogo);
+        }
+
         const response: Response = await fetch('https://api.relysia.com/v1/createWallet', {
             method: 'GET',
-            headers: new Headers({
-                accept: 'application/json',
-                authToken: this.authToken,
-                walletTitle,
-                mnemonicPhrase: opt.mnemonicPhrase,
-                paymail: `${opt.paymail}@relysia.com`,
-                paymailActivate: opt.paymailActivate,
-                type: opt.type,
-                walletLogo: opt.walletLogo,
-            })
+            headers,
         });
 
         const body: RelysiaBasic<RelysiaCreateWallet> = await response.json();
+
         if (body.data.msg === 'invalid mnemonic phrase') {
             return 'Invalid Mnemonic!';
         } else if (body.data.msg === "please write correct paymail, 'example@relysia.com'") {
@@ -203,6 +222,79 @@ export class BetterRelysiaSDK {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return this.createWalletRepeat(walletTitle, opt);
+            }
+
+            return 'Reached Max Attempts';
+        }
+
+        return body.data;
+    }
+
+    /**
+     * Get an address and the paymail for a specified wallet.
+     * @param walletId The Wallet ID that you wish to get the address for. Defaults to default wallet if not specified
+     */
+    public async getAddress(walletId?: string): Promise<RelysiaGetAddress | 'Reached Max Attempts' | 'Non-existant wallet'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletId !== undefined) {
+            headers.set('walletId', walletId);
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/address', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaGetAddress> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            this.getAddressRepeat(walletId);
+        }
+
+        return body.data;
+    }
+
+    private async getAddressRepeat(walletId?: string): Promise<RelysiaGetAddress | 'Reached Max Attempts' | 'Non-existant wallet'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletId !== undefined) {
+            headers.set('walletId', walletId);
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/address', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaGetAddress> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retries > 0) {
+                this.getAddressRepeat(walletId);
             }
 
             return 'Reached Max Attempts';

@@ -69,3 +69,10 @@ export type RelysiaCreateWallet = {
     walletId: string;
     paymail: string;
 }
+
+export type RelysiaGetAddress = {
+    status: status;
+    msg: string;
+    address: string;
+    paymail: string;
+}
