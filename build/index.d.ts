@@ -1,4 +1,4 @@
-import { CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaUserProfileData } from "./types";
+import { CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaUserProfileData } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -50,6 +50,34 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<RelysiaGetAddress | 'Reached Max Attempts' | 'Non-existant wallet'>}
      */
     private getAddressRepeat;
+    /**
+     * Get all addresses related to your wallet.
+     * @public
+     * @param {string} [walletId] Wallet ID of the wallet you want to use. Leave blank to use default wallet
+     * @returns {Promise<RelysiaGetAllAddress | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    getAllAddressess(walletId?: string): Promise<RelysiaGetAllAddress | 'Reached Max Attempts' | 'Non-existant wallet'>;
+    /**
+     * @private
+     * @param {string} [walletId]
+     * @returns {Promise<RelysiaGetAllAddress | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    private getAllAddressessRepeat;
+    /**
+     * Gets the leaderboard of those who hold a particular STAS token.
+     * @public
+     * @param {string} tokenId The token id of the token you wish to query.
+     * @param {number} [nextPageToken] The next page token given by a previous response.
+     * @returns {Promise<RelysiaLeaderboard | 'Reached Max Attempts' | 'Invalid Token ID!' | 'No entries in leaderboard'>}
+     */
+    leaderboard(tokenId: string, nextPageToken?: number): Promise<RelysiaLeaderboard | 'Reached Max Attempts' | 'Invalid Token ID!' | 'No entries in leaderboard'>;
+    /**
+     * @private
+     * @param {string} tokenId
+     * @param {number} [nextPageToken]
+     * @returns {Promise<RelysiaLeaderboard | 'Reached Max Attempts' | 'Invalid Token ID!' | 'No entries in leaderboard'>}
+     */
+    private leaderboardRepeat;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

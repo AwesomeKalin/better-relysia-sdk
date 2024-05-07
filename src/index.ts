@@ -1,4 +1,4 @@
-import { CreateWalletOpt, RelysiaAuth, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData } from "./types";
+import { CreateWalletOpt, RelysiaAuth, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -298,6 +298,163 @@ export class BetterRelysiaSDK {
             }
 
             return 'Reached Max Attempts';
+        }
+
+        return body.data;
+    }
+
+    /**
+     * Get all addresses related to your wallet.
+     * @param walletId Wallet ID of the wallet you want to use. Leave blank to use default wallet
+     */
+    public async getAllAddressess(walletId?: string): Promise<RelysiaGetAllAddress | 'Reached Max Attempts' | 'Non-existant wallet'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletId !== undefined) {
+            headers.set('walletId', walletId);
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/allAddresses', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaGetAllAddress> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.getAllAddressessRepeat(walletId);
+        }
+
+        return body.data;
+    }
+    
+    private async getAllAddressessRepeat(walletId?: string): Promise<RelysiaGetAllAddress | 'Reached Max Attempts' | 'Non-existant wallet'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletId !== undefined) {
+            headers.set('walletId', walletId);
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/allAddresses', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaGetAllAddress> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.getAllAddressessRepeat(walletId);
+            } else {
+                return 'Reached Max Attempts';
+            }
+        }
+
+        return body.data;
+    }
+
+    /**
+     * Gets the leaderboard of those who hold a particular STAS token.
+     * @param tokenId The token id of the token you wish to query.
+     * @param nextPageToken The next page token given by a previous response.
+     */
+    public async leaderboard(tokenId: string, nextPageToken?: number): Promise<RelysiaLeaderboard | 'Reached Max Attempts' | 'Invalid Token ID!' | 'No entries in leaderboard'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+            tokenId,
+        });
+
+        if (nextPageToken !== undefined) {
+            headers.set('nextPageToken', nextPageToken.toString());
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/leaderboard', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaLeaderboard> = await response.json();
+
+        if (body.data.msg === 'invalid tokenId or sn !') {
+            return 'Invalid Token ID!';
+        }
+
+        if (body.data.leaderboard.length === 0) {
+            return 'No entries in leaderboard'
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            this.leaderboardRepeat(tokenId, nextPageToken);
+        }
+
+        return body.data;
+    }
+
+    private async leaderboardRepeat(tokenId: string, nextPageToken?: number): Promise<RelysiaLeaderboard | 'Reached Max Attempts' | 'Invalid Token ID!' | 'No entries in leaderboard'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+            tokenId,
+        });
+
+        if (nextPageToken !== undefined) {
+            headers.set('nextPageToken', nextPageToken.toString());
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/leaderboard', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaLeaderboard> = await response.json();
+
+        if (body.data.msg === 'invalid tokenId or sn !') {
+            return 'Invalid Token ID!';
+        }
+
+        if (body.data.leaderboard.length === 0) {
+            return 'No entries in leaderboard'
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.leaderboardRepeat(tokenId, nextPageToken);
+            } else {
+                return 'Reached Max Attempts';
+            }
         }
 
         return body.data;

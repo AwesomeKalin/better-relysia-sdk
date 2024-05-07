@@ -136,3 +136,39 @@ export type RelysiaGetAddress = {
     address: string;
     paymail: string;
 };
+/**
+ * @typedef {Object} RelysiaGetAllAddress
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} addressess
+ */
+export type RelysiaGetAllAddress = {
+    status: status;
+    msg: string;
+    addressess: string[];
+};
+/**
+ * @typedef {Object} RelysiaLeaderboard
+ * @property {status} status
+ * @property {string} msg
+ * @property {{
+        paymail?: string;
+        totalAmount: number;
+        uid: string;
+        rank: number;
+        displayName?: string;
+    }[]} leaderboard
+ * @property {number | null} nextPageToken
+ */
+export type RelysiaLeaderboard = {
+    status: status;
+    msg: string;
+    leaderboard: {
+        paymail?: string;
+        totalAmount: number;
+        uid: string;
+        rank: number;
+        displayName?: string;
+    }[];
+    nextPageToken: number | null;
+};
