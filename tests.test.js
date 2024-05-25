@@ -65,3 +65,23 @@ test('test leaderboard', async () => {
         });
     });
 });
+
+test('get wallets', async () => {
+    return await BetterRelysiaSDK.authenticate('satoshiasdsa@gmail.com', '4m4z1ngT3ch').then(data => {
+        if (typeof data !== 'object') return;
+        data.wallets().then(data => {
+            if (typeof data !== 'object') return;
+            expect(data.wallets[0].walletTitle).toEqual('QA1');
+        });
+    });
+});
+
+test('get mnemonic', async () => {
+    return await BetterRelysiaSDK.authenticate('satoshiasdsa@gmail.com', '4m4z1ngT3ch').then(data => {
+        if (typeof data !== 'object') return;
+        data.mnemonic().then(data => {
+            if (typeof data !== 'object') return;
+            expect(data.mnemonic).toEqual('silver salt ticket wash calm album noodle shift sweet pact good resist');
+        });
+    });
+});

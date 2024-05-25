@@ -1,4 +1,4 @@
-import { CreateWalletOpt, RelysiaAuth, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData } from "./types";
+import { CreateWalletOpt, RelysiaAuth, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -29,7 +29,7 @@ export class BetterRelysiaSDK {
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
-                return this.checkAuth();
+                return await this.checkAuth();
             }
 
             return false;
@@ -55,7 +55,7 @@ export class BetterRelysiaSDK {
 
         if (response.status !== 200) {
             this.retriesLeft--;
-            return this.getUserProfileRepeat();
+            return await this.getUserProfileRepeat();
         }
 
         let body: RelysiaBasic<RelysiaUserProfileData> = await response.json();
@@ -86,7 +86,7 @@ export class BetterRelysiaSDK {
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
-                return this.getUserProfileRepeat();
+                return await this.getUserProfileRepeat();
             }
 
             return 'Reached Max Attempts';
@@ -168,7 +168,7 @@ export class BetterRelysiaSDK {
 
         if (response.status !== 200) {
             this.retriesLeft--;
-            return this.createWalletRepeat(walletTitle, opt);
+            return await this.createWalletRepeat(walletTitle, opt);
         }
 
         return body.data;
@@ -221,7 +221,7 @@ export class BetterRelysiaSDK {
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
-                return this.createWalletRepeat(walletTitle, opt);
+                return await this.createWalletRepeat(walletTitle, opt);
             }
 
             return 'Reached Max Attempts';
@@ -264,7 +264,7 @@ export class BetterRelysiaSDK {
 
         if (response.status !== 200) {
             this.retriesLeft--;
-            this.getAddressRepeat(walletId);
+            return await this.getAddressRepeat(walletId);
         }
 
         return body.data;
@@ -294,7 +294,7 @@ export class BetterRelysiaSDK {
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retries > 0) {
-                this.getAddressRepeat(walletId);
+                return await this.getAddressRepeat(walletId);
             }
 
             return 'Reached Max Attempts';
@@ -337,7 +337,7 @@ export class BetterRelysiaSDK {
 
         if (response.status !== 200) {
             this.retriesLeft--;
-            return this.getAllAddressessRepeat(walletId);
+            return await this.getAllAddressessRepeat(walletId);
         }
 
         return body.data;
@@ -367,10 +367,10 @@ export class BetterRelysiaSDK {
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
-                return this.getAllAddressessRepeat(walletId);
-            } else {
-                return 'Reached Max Attempts';
+                return await this.getAllAddressessRepeat(walletId);
             }
+            
+            return 'Reached Max Attempts';
         }
 
         return body.data;
@@ -416,7 +416,7 @@ export class BetterRelysiaSDK {
 
         if (response.status !== 200) {
             this.retriesLeft--;
-            this.leaderboardRepeat(tokenId, nextPageToken);
+            return await this.leaderboardRepeat(tokenId, nextPageToken);
         }
 
         return body.data;
@@ -451,10 +451,138 @@ export class BetterRelysiaSDK {
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
-                return this.leaderboardRepeat(tokenId, nextPageToken);
-            } else {
-                return 'Reached Max Attempts';
+                return await this.leaderboardRepeat(tokenId, nextPageToken);
             }
+            
+            return 'Reached Max Attempts';
+        }
+
+        return body.data;
+    }
+
+    /**
+     * Gets all wallets in the Relysia account.
+     */
+    public async wallets(): Promise<RelysiaWallets | 'Reached Max Attempts'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        const response: Response = await fetch('https://api.relysia.com/v1/wallets', {
+            method: 'GET',
+            headers,
+        });
+
+        if (response.status !== 200) {
+            this.retriesLeft--
+            return this.walletsRepeat();
+        }
+
+        const body: RelysiaBasic<RelysiaWallets> = await response.json();
+
+        return body.data;
+    }
+
+    private async walletsRepeat(): Promise<RelysiaWallets | 'Reached Max Attempts'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        const response: Response = await fetch('https://api.relysia.com/v1/wallets', {
+            method: 'GET',
+            headers,
+        });
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return await this.walletsRepeat();
+            }
+
+            return 'Reached Max Attempts';
+        }
+
+        const body: RelysiaBasic<RelysiaWallets> = await response.json();
+
+        return body.data;
+    }
+
+    /** Gets the mnemonic of a wallet
+     * @param walletId Wallet ID of the wallet you want to use. Leave blank to use default wallet
+     */
+    public async mnemonic(walletId?: string): Promise<RelysiaMnemonic | 'Reached Max Attempts' | 'Non-existant wallet'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletId !== undefined) {
+            headers.set('walletId', walletId);
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/mnemonic', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaMnemonic> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return await this.mnemonicRepeat(walletId);
+        }
+
+        return body.data;
+    }
+
+    private async mnemonicRepeat(walletId?: string): Promise<RelysiaMnemonic | 'Reached Max Attempts' | 'Non-existant wallet'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletId !== undefined) {
+            headers.set('walletId', walletId);
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/mnemonic', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaMnemonic> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--
+            if (this.retriesLeft > 0) {
+                return await this.mnemonicRepeat(walletId);
+            }
+
+            return 'Reached Max Attempts';
         }
 
         return body.data;
@@ -500,7 +628,7 @@ export async function authenticate(email: string, password: string, retries: num
     toReturn.retries = retries;
 
     if (response.status !== 200) {
-        return authenticateAfterFail(email, password, retries, retries - 1);
+        return await authenticateAfterFail(email, password, retries, retries - 1);
     }
 
     toReturn.authToken = body.data.token;
@@ -541,7 +669,7 @@ async function authenticateAfterFail(email: string, password: string, retries: n
 
     if (response.status !== 200) {
         if (retriesLeft > 0) {
-            return authenticateAfterFail(email, password, retries, retriesLeft - 1);
+            return await authenticateAfterFail(email, password, retries, retriesLeft - 1);
         } else {
             return undefined;
         }

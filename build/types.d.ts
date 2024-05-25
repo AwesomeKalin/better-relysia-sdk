@@ -172,3 +172,33 @@ export type RelysiaLeaderboard = {
     }[];
     nextPageToken: number | null;
 };
+/**
+ * @typedef {Object} RelysiaWallets
+ * @property {status} status
+ * @property {string} msg
+ * @property {{
+        walletId: string;
+        walletTitle: string;
+        walletLogo: string | null;
+    }[]} wallets
+ */
+export type RelysiaWallets = {
+    status: status;
+    msg: string;
+    wallets: {
+        walletId: string;
+        walletTitle: string;
+        walletLogo: string | null;
+    }[];
+};
+/**
+ * @typedef {Object} RelysiaMnemonic
+ * @property {status} status
+ * @property {string} msg
+ * @property {string} mnemonic
+ */
+export type RelysiaMnemonic = {
+    status: status;
+    msg: string;
+    mnemonic: string;
+};

@@ -1,4 +1,4 @@
-import { CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaUserProfileData } from "./types";
+import { CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserProfileData, RelysiaWallets } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -78,6 +78,29 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<RelysiaLeaderboard | 'Reached Max Attempts' | 'Invalid Token ID!' | 'No entries in leaderboard'>}
      */
     private leaderboardRepeat;
+    /**
+     * Gets all wallets in the Relysia account.
+     * @public
+     * @returns {Promise<RelysiaWallets | 'Reached Max Attempts'>}
+     */
+    wallets(): Promise<RelysiaWallets | 'Reached Max Attempts'>;
+    /**
+     * @private
+     * @returns {Promise<RelysiaWallets | 'Reached Max Attempts'>}
+     */
+    private walletsRepeat;
+    /** Gets the mnemonic of a wallet
+     * @public
+     * @param {string} [walletId] Wallet ID of the wallet you want to use. Leave blank to use default wallet
+     * @returns {Promise<RelysiaMnemonic | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    mnemonic(walletId?: string): Promise<RelysiaMnemonic | 'Reached Max Attempts' | 'Non-existant wallet'>;
+    /**
+     * @private
+     * @param {string} [walletId]
+     * @returns {Promise<RelysiaMnemonic | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    private mnemonicRepeat;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

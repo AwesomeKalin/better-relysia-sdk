@@ -95,3 +95,19 @@ export type RelysiaLeaderboard = {
     }[];
     nextPageToken: number | null;
 }
+
+export type RelysiaWallets = {
+    status: status;
+    msg: string;
+    wallets: {
+        walletId: string;
+        walletTitle: string;
+        walletLogo: string | null;
+    }[];
+}
+
+export type RelysiaMnemonic = {
+    status: status;
+    msg: string;
+    mnemonic: string;
+}
