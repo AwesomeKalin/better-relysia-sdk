@@ -145,6 +145,15 @@ export type RelysiaBalance = {
     };
 }
 
+/**
+ * @param nextPageToken Next Page Token returned by a previous request
+ * @param tokenId Specify a specific token to return
+ * @param symbol Specify a specific token by symbol
+ * @param walletId The wallet id
+ * @param type What type of coin/token to return
+ * @param currency What currency to return in totalBalance
+ * @param maxResults Maximum number of results to return
+ */
 export type BalanceOpts = {
     nextPageToken?: string;
     tokenId?: string;
@@ -153,4 +162,50 @@ export type BalanceOpts = {
     type?: 'BSV' | 'STAS' | 'ALL';
     currency?: string;
     maxResults?: number;
+};
+
+/**
+ * @param nextPageToken Next page token returned by a previous request
+ * @param tokenId Return the history of a specific token
+ * @param protocol The protocol to return
+ * @param walletID Wallet to return history for
+ * @param type What type of coin/token to return history for
+ */
+export type HistoryOpts = {
+    nextPageToken?: string;
+    tokenId?: string;
+    protocol?: string;
+    limit?: string;
+    walletID?: string;
+    type?: 'debit' | 'credit';
+};
+
+export type RelysiaHistory = {
+    status: status;
+    msg: string;
+    histories: {
+        to: {
+            amount: number;
+            image: string;
+            protocol: string;
+            tokenId: string;
+            sn: number;
+            to: string;
+            name: string;
+            decimals: number;
+        }|{
+            amount: number;
+            protocol: string;
+            to: string;
+        }[];
+        txId: string;
+        from: string;
+        timestamp: string;
+        totalAmount: number;
+        type: string;
+        notes?: string | null;
+    }[];
+    meta: {
+        nextPageToken: number;
+    };
 };

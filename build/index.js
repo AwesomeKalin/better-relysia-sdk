@@ -1,12 +1,14 @@
 "use strict";
 /** @typedef {import('./types').BalanceOpts} BalanceOpts */
 /** @typedef {import('./types').CreateWalletOpt} CreateWalletOpt */
+/** @typedef {import('./types').HistoryOpts} HistoryOpts */
 /** @typedef {import('./types').RelysiaAuth} RelysiaAuth */
 /** @typedef {import('./types').RelysiaBalance} RelysiaBalance */
 /** @typedef {import('./types').RelysiaBasic} RelysiaBasic */
 /** @typedef {import('./types').RelysiaCreateWallet} RelysiaCreateWallet */
 /** @typedef {import('./types').RelysiaGetAddress} RelysiaGetAddress */
 /** @typedef {import('./types').RelysiaGetAllAddress} RelysiaGetAllAddress */
+/** @typedef {import('./types').RelysiaHistory} RelysiaHistory */
 /** @typedef {import('./types').RelysiaLeaderboard} RelysiaLeaderboard */
 /** @typedef {import('./types').RelysiaMnemonic} RelysiaMnemonic */
 /** @typedef {import('./types').RelysiaUserDetailsUnproccessed} RelysiaUserDetailsUnproccessed */
@@ -643,6 +645,100 @@ class BetterRelysiaSDK {
             if (this.retriesLeft > 0) {
                 return this.balanceRepeat(opts);
             }
+            return 'Reached Max Attempts';
+        }
+        return body.data;
+    }
+    /**
+     * Get wallet history
+     * @public
+     * @param {HistoryOpts} [opts] Optional options to pass
+     * @returns {Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    async history(opts) {
+        this.retriesLeft = this.retries;
+        const verifyCheck = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+        const headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+        if (opts.limit !== undefined) {
+            headers.set('limit', opts.limit);
+        }
+        if (opts.nextPageToken !== undefined) {
+            headers.set('nextPageToken', opts.nextPageToken);
+        }
+        if (opts.protocol !== undefined) {
+            headers.set('protocol', opts.protocol);
+        }
+        if (opts.tokenId !== undefined) {
+            headers.set('tokenId', opts.tokenId);
+        }
+        if (opts.type !== undefined) {
+            headers.set('type', opts.type);
+        }
+        if (opts.walletID !== undefined) {
+            headers.set('walletID', opts.walletID);
+        }
+        const response = await fetch('https://api.relysia.com/v2/history', {
+            method: 'GET',
+            headers,
+        });
+        const body = await response.json();
+        if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.historyRepeat(opts);
+        }
+        return body.data;
+    }
+    /**
+     * @private
+     * @param {HistoryOpts} [opts]
+     * @returns {Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    async historyRepeat(opts) {
+        const headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+        if (opts.limit !== undefined) {
+            headers.set('limit', opts.limit);
+        }
+        if (opts.nextPageToken !== undefined) {
+            headers.set('nextPageToken', opts.nextPageToken);
+        }
+        if (opts.protocol !== undefined) {
+            headers.set('protocol', opts.protocol);
+        }
+        if (opts.tokenId !== undefined) {
+            headers.set('tokenId', opts.tokenId);
+        }
+        if (opts.type !== undefined) {
+            headers.set('type', opts.type);
+        }
+        if (opts.walletID !== undefined) {
+            headers.set('walletID', opts.walletID);
+        }
+        const response = await fetch('https://api.relysia.com/v2/history', {
+            method: 'GET',
+            headers,
+        });
+        const body = await response.json();
+        if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.historyRepeat(opts);
+            }
+            return 'Reached Max Attempts';
         }
         return body.data;
     }

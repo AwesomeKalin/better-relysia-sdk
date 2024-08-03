@@ -95,3 +95,13 @@ test('get balance', async () => {
         });
     });
 });
+
+test('get history', async () => {
+    return await BetterRelysiaSDK.authenticate('satoshiasdsa@gmail.com', '4m4z1ngT3ch').then(data => {
+        if (typeof data !== 'object') return;
+        data.history().then(data => {
+            if (typeof data !== 'object') return;
+            expect(data.histories.length).not.toEqual(0);
+        });
+    });
+});

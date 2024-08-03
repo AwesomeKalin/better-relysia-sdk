@@ -1,17 +1,19 @@
 /** @typedef {import('./types').BalanceOpts} BalanceOpts */
 /** @typedef {import('./types').CreateWalletOpt} CreateWalletOpt */
+/** @typedef {import('./types').HistoryOpts} HistoryOpts */
 /** @typedef {import('./types').RelysiaAuth} RelysiaAuth */
 /** @typedef {import('./types').RelysiaBalance} RelysiaBalance */
 /** @typedef {import('./types').RelysiaBasic} RelysiaBasic */
 /** @typedef {import('./types').RelysiaCreateWallet} RelysiaCreateWallet */
 /** @typedef {import('./types').RelysiaGetAddress} RelysiaGetAddress */
 /** @typedef {import('./types').RelysiaGetAllAddress} RelysiaGetAllAddress */
+/** @typedef {import('./types').RelysiaHistory} RelysiaHistory */
 /** @typedef {import('./types').RelysiaLeaderboard} RelysiaLeaderboard */
 /** @typedef {import('./types').RelysiaMnemonic} RelysiaMnemonic */
 /** @typedef {import('./types').RelysiaUserDetailsUnproccessed} RelysiaUserDetailsUnproccessed */
 /** @typedef {import('./types').RelysiaUserProfileData} RelysiaUserProfileData */
 /** @typedef {import('./types').RelysiaWallets} RelysiaWallets */
-import { BalanceOpts, CreateWalletOpt, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserProfileData, RelysiaWallets } from "./types";
+import { BalanceOpts, CreateWalletOpt, HistoryOpts, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserProfileData, RelysiaWallets } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -127,6 +129,19 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<RelysiaBalance | 'Reached Max Attempts' | 'Non-existant wallet' | 'Invalid nextPageToken' | 'Invalid Currency'>}
      */
     private balanceRepeat;
+    /**
+     * Get wallet history
+     * @public
+     * @param {HistoryOpts} [opts] Optional options to pass
+     * @returns {Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    history(opts?: HistoryOpts): Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'>;
+    /**
+     * @private
+     * @param {HistoryOpts} [opts]
+     * @returns {Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     */
+    private historyRepeat;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

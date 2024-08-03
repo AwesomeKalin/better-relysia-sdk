@@ -1,4 +1,4 @@
-import { BalanceOpts, CreateWalletOpt, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets } from "./types";
+import { BalanceOpts, CreateWalletOpt, HistoryOpts, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -718,6 +718,121 @@ export class BetterRelysiaSDK {
             if (this.retriesLeft > 0) {
                 return this.balanceRepeat(opts);
             }
+
+            return 'Reached Max Attempts';
+        }
+
+        return body.data;
+    }
+
+    /**
+     * Get wallet history
+     * @param opts Optional options to pass
+     */
+    public async history(opts?: HistoryOpts): Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (opts.limit !== undefined) {
+            headers.set('limit', opts.limit);
+        }
+
+        if (opts.nextPageToken !== undefined) {
+            headers.set('nextPageToken', opts.nextPageToken);
+        }
+
+        if (opts.protocol !== undefined) {
+            headers.set('protocol', opts.protocol);
+        }
+
+        if (opts.tokenId !== undefined) {
+            headers.set('tokenId', opts.tokenId);
+        }
+
+        if (opts.type !== undefined) {
+            headers.set('type', opts.type);
+        }
+
+        if (opts.walletID !== undefined) {
+            headers.set('walletID', opts.walletID);
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v2/history', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaHistory> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.historyRepeat(opts);
+        }
+
+        return body.data;
+    }
+
+    private async historyRepeat(opts?: HistoryOpts): Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (opts.limit !== undefined) {
+            headers.set('limit', opts.limit);
+        }
+
+        if (opts.nextPageToken !== undefined) {
+            headers.set('nextPageToken', opts.nextPageToken);
+        }
+
+        if (opts.protocol !== undefined) {
+            headers.set('protocol', opts.protocol);
+        }
+
+        if (opts.tokenId !== undefined) {
+            headers.set('tokenId', opts.tokenId);
+        }
+
+        if (opts.type !== undefined) {
+            headers.set('type', opts.type);
+        }
+
+        if (opts.walletID !== undefined) {
+            headers.set('walletID', opts.walletID);
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v2/history', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaHistory> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.historyRepeat(opts);
+            }
+
+            return 'Reached Max Attempts'
         }
 
         return body.data;
