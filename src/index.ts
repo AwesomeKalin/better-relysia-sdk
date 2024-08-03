@@ -1,4 +1,4 @@
-import { CreateWalletOpt, RelysiaAuth, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets } from "./types";
+import { BalanceOpts, CreateWalletOpt, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -342,7 +342,7 @@ export class BetterRelysiaSDK {
 
         return body.data;
     }
-    
+
     private async getAllAddressessRepeat(walletId?: string): Promise<RelysiaGetAllAddress | 'Reached Max Attempts' | 'Non-existant wallet'> {
         const headers: Headers = new Headers({
             accept: 'application/json',
@@ -369,7 +369,7 @@ export class BetterRelysiaSDK {
             if (this.retriesLeft > 0) {
                 return await this.getAllAddressessRepeat(walletId);
             }
-            
+
             return 'Reached Max Attempts';
         }
 
@@ -453,7 +453,7 @@ export class BetterRelysiaSDK {
             if (this.retriesLeft > 0) {
                 return await this.leaderboardRepeat(tokenId, nextPageToken);
             }
-            
+
             return 'Reached Max Attempts';
         }
 
@@ -583,6 +583,141 @@ export class BetterRelysiaSDK {
             }
 
             return 'Reached Max Attempts';
+        }
+
+        return body.data;
+    }
+
+    /**
+     * Get the balance of the specified wallet
+     * @param opts Optional options to pass to the endpoint
+     */
+    public async balance(opts?: BalanceOpts): Promise<RelysiaBalance | 'Reached Max Attempts' | 'Non-existant wallet' | 'Invalid nextPageToken' | 'Invalid Currency'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (opts.nextPageToken !== undefined) {
+            headers.set('nextPageToken', opts.nextPageToken)
+        }
+
+        if (opts.tokenId !== undefined) {
+            headers.set('tokenId', opts.tokenId);
+        }
+
+        if (opts.symbol !== undefined) {
+            headers.set('symbol', opts.symbol);
+        }
+
+        if (opts.walletId !== undefined) {
+            headers.set('walletId', opts.walletId);
+        }
+
+        if (opts.type !== undefined) {
+            headers.set('type', opts.type);
+        }
+
+        if (opts.currency !== undefined) {
+            headers.set('currency', opts.currency);
+        }
+
+        if (opts.maxResults !== undefined) {
+            headers.set('maxResults', opts.maxResults.toString());
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v2/balance', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaBalance> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
+            return 'Invalid nextPageToken';
+        }
+
+        if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
+            return 'Invalid Currency';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.balanceRepeat(opts);
+        }
+
+        return body.data;
+    }
+
+    private async balanceRepeat(opts?: BalanceOpts): Promise<RelysiaBalance | 'Reached Max Attempts' | 'Non-existant wallet' | 'Invalid nextPageToken' | 'Invalid Currency'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (opts.nextPageToken !== undefined) {
+            headers.set('nextPageToken', opts.nextPageToken)
+        }
+
+        if (opts.tokenId !== undefined) {
+            headers.set('tokenId', opts.tokenId);
+        }
+
+        if (opts.symbol !== undefined) {
+            headers.set('symbol', opts.symbol);
+        }
+
+        if (opts.walletId !== undefined) {
+            headers.set('walletId', opts.walletId);
+        }
+
+        if (opts.type !== undefined) {
+            headers.set('type', opts.type);
+        }
+
+        if (opts.currency !== undefined) {
+            headers.set('currency', opts.currency);
+        }
+
+        if (opts.maxResults !== undefined) {
+            headers.set('maxResults', opts.maxResults.toString());
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v2/balance', {
+            method: 'GET',
+            headers,
+        });
+
+        const body: RelysiaBasic<RelysiaBalance> = await response.json();
+
+        if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
+            return 'Invalid nextPageToken';
+        }
+
+        if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
+            return 'Invalid Currency';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.balanceRepeat(opts);
+            }
         }
 
         return body.data;

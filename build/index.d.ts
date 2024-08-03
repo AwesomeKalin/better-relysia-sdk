@@ -1,4 +1,17 @@
-import { CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserProfileData, RelysiaWallets } from "./types";
+/** @typedef {import('./types').BalanceOpts} BalanceOpts */
+/** @typedef {import('./types').CreateWalletOpt} CreateWalletOpt */
+/** @typedef {import('./types').RelysiaAuth} RelysiaAuth */
+/** @typedef {import('./types').RelysiaBalance} RelysiaBalance */
+/** @typedef {import('./types').RelysiaBasic} RelysiaBasic */
+/** @typedef {import('./types').RelysiaCreateWallet} RelysiaCreateWallet */
+/** @typedef {import('./types').RelysiaGetAddress} RelysiaGetAddress */
+/** @typedef {import('./types').RelysiaGetAllAddress} RelysiaGetAllAddress */
+/** @typedef {import('./types').RelysiaLeaderboard} RelysiaLeaderboard */
+/** @typedef {import('./types').RelysiaMnemonic} RelysiaMnemonic */
+/** @typedef {import('./types').RelysiaUserDetailsUnproccessed} RelysiaUserDetailsUnproccessed */
+/** @typedef {import('./types').RelysiaUserProfileData} RelysiaUserProfileData */
+/** @typedef {import('./types').RelysiaWallets} RelysiaWallets */
+import { BalanceOpts, CreateWalletOpt, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserProfileData, RelysiaWallets } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -101,6 +114,19 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<RelysiaMnemonic | 'Reached Max Attempts' | 'Non-existant wallet'>}
      */
     private mnemonicRepeat;
+    /**
+     * Get the balance of the specified wallet
+     * @public
+     * @param {BalanceOpts} [opts] Optional options to pass to the endpoint
+     * @returns {Promise<RelysiaBalance | 'Reached Max Attempts' | 'Non-existant wallet' | 'Invalid nextPageToken' | 'Invalid Currency'>}
+     */
+    balance(opts?: BalanceOpts): Promise<RelysiaBalance | 'Reached Max Attempts' | 'Non-existant wallet' | 'Invalid nextPageToken' | 'Invalid Currency'>;
+    /**
+     * @private
+     * @param {BalanceOpts} [opts]
+     * @returns {Promise<RelysiaBalance | 'Reached Max Attempts' | 'Non-existant wallet' | 'Invalid nextPageToken' | 'Invalid Currency'>}
+     */
+    private balanceRepeat;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

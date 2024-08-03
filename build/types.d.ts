@@ -202,3 +202,85 @@ export type RelysiaMnemonic = {
     msg: string;
     mnemonic: string;
 };
+/**
+ * @typedef {Object} RelysiaBalance
+ * @property {status} status
+ * @property {string} msg
+ * @property {Object} totalBalance
+ * @property {string} totalBalance.currency
+ * @property {number} totalBalance.balance
+ * @property {{
+        protocol: "BSV";
+        balance: number;
+    }|{
+        Id: string;
+        protocol: string;
+        tokenId: string;
+        splittable: boolean;
+        splitable: boolean;
+        verified: boolean;
+        address: string;
+        satsPerToken: number;
+        symbol: string;
+        redeemAddr: string;
+        image: string;
+        amount: number;
+        supply: number;
+        decimals: number;
+        sn: number[];
+        name: string;
+    }[]} coins
+ * @property {Object} meta
+ * @property {number} meta.nextPageToken
+ */
+export type RelysiaBalance = {
+    status: status;
+    msg: string;
+    totalBalance: {
+        currency: string;
+        balance: number;
+    };
+    coins: {
+        protocol: "BSV";
+        balance: number;
+    } | {
+        Id: string;
+        protocol: string;
+        tokenId: string;
+        splittable: boolean;
+        splitable: boolean;
+        verified: boolean;
+        address: string;
+        satsPerToken: number;
+        symbol: string;
+        redeemAddr: string;
+        image: string;
+        amount: number;
+        supply: number;
+        decimals: number;
+        sn: number[];
+        name: string;
+    }[];
+    meta: {
+        nextPageToken: number;
+    };
+};
+/**
+ * @typedef {Object} BalanceOpts
+ * @property {string} [nextPageToken]
+ * @property {string} [tokenId]
+ * @property {string} [symbol]
+ * @property {string} [walletId]
+ * @property {'BSV' | 'STAS' | 'ALL'} [type]
+ * @property {string} [currency]
+ * @property {number} [maxResults]
+ */
+export type BalanceOpts = {
+    nextPageToken?: string;
+    tokenId?: string;
+    symbol?: string;
+    walletId?: string;
+    type?: 'BSV' | 'STAS' | 'ALL';
+    currency?: string;
+    maxResults?: number;
+};
