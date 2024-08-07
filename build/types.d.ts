@@ -436,3 +436,26 @@ export type RelysiaAsm = {
     msg: string;
     txid: string;
 };
+/**
+ * @param walletID The wallet you want to use
+ * @typedef {Object} RedeemOpts
+ * @property {number} [sn]
+ * @property {string} [walletID]
+ */
+export type RedeemOpts = {
+    sn?: number;
+    walletID?: string;
+};
+/**
+ * @typedef {Object} RelysiaRedeem
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} txIds
+ * @property {any[]} errors
+ */
+export type RelysiaRedeem = {
+    status: status;
+    msg: string;
+    txIds: string[];
+    errors: any[];
+};

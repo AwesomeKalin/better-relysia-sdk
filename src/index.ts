@@ -1,4 +1,4 @@
-import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RelysiaAsm, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from "./types";
+import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -1130,6 +1130,143 @@ export class BetterRelysiaSDK {
             }
 
             return 'Reached Max Attempts';
+        }
+
+        return res.data;
+    }
+
+    /**
+     * Dissolve a token for satoshis
+     * @param tokenId The token you wish to redeem
+     * @param amount How much you wish to redeem
+     * @param opts Additional options
+     */
+    public async redeemToken(tokenId: string, amount: number, opts?: RedeemOpts): Promise<RelysiaRedeem | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        let body: BodyInit;
+
+        if (opts !== undefined) {
+            if (opts.walletID !== undefined) {
+                headers.set('walletID', opts.walletID);
+            }
+
+            body = JSON.stringify({
+                dataArray: [
+                    {
+                        amount,
+                        tokenId,
+                        sn: opts.sn,
+                    }
+                ]
+            });
+        } else {
+            body = JSON.stringify({
+                dataArray: [
+                    {
+                        amount,
+                        tokenId,
+                    }
+                ]
+            });
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/redeem', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaRedeem> = await response.json();
+
+        if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            return 'Insufficient Balance';
+        }
+
+        if (response.status !== undefined) {
+            this.retriesLeft--;
+            return this.redeemTokenRepeat(tokenId, amount, opts);
+        }
+
+        return res.data;
+    }
+
+    private async redeemTokenRepeat(tokenId: string, amount: number, opts?: RedeemOpts): Promise<RelysiaRedeem | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        let body: BodyInit;
+
+        if (opts !== undefined) {
+            if (opts.walletID !== undefined) {
+                headers.set('walletID', opts.walletID);
+            }
+
+            body = JSON.stringify({
+                dataArray: [
+                    {
+                        amount,
+                        tokenId,
+                        sn: opts.sn,
+                    }
+                ]
+            });
+        } else {
+            body = JSON.stringify({
+                dataArray: [
+                    {
+                        amount,
+                        tokenId,
+                    }
+                ]
+            });
+        }
+
+        const response: Response = await fetch('https://api.relysia.com/v1/redeem', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaRedeem> = await response.json();
+
+        if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            return 'Insufficient Balance';
+        }
+
+        if (response.status !== undefined) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.redeemTokenRepeat(tokenId, amount, opts);
+            }
         }
 
         return res.data;

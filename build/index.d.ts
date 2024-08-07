@@ -2,6 +2,7 @@
 /** @typedef {import('./types').CreateWalletOpt} CreateWalletOpt */
 /** @typedef {import('./types').HistoryOpts} HistoryOpts */
 /** @typedef {import('./types').RawTxOpts} RawTxOpts */
+/** @typedef {import('./types').RedeemOpts} RedeemOpts */
 /** @typedef {import('./types').RelysiaAsm} RelysiaAsm */
 /** @typedef {import('./types').RelysiaAuth} RelysiaAuth */
 /** @typedef {import('./types').RelysiaBalance} RelysiaBalance */
@@ -13,12 +14,13 @@
 /** @typedef {import('./types').RelysiaLeaderboard} RelysiaLeaderboard */
 /** @typedef {import('./types').RelysiaMnemonic} RelysiaMnemonic */
 /** @typedef {import('./types').RelysiaRawTx} RelysiaRawTx */
+/** @typedef {import('./types').RelysiaRedeem} RelysiaRedeem */
 /** @typedef {import('./types').RelysiaSweep} RelysiaSweep */
 /** @typedef {import('./types').RelysiaUserDetailsUnproccessed} RelysiaUserDetailsUnproccessed */
 /** @typedef {import('./types').RelysiaUserProfileData} RelysiaUserProfileData */
 /** @typedef {import('./types').RelysiaWallets} RelysiaWallets */
 /** @typedef {import('./types').TransferSchema} TransferSchema */
-import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RelysiaAsm, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaSweep, RelysiaUserProfileData, RelysiaWallets } from "./types";
+import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserProfileData, RelysiaWallets } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -192,6 +194,23 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
      */
     private asmRepeat;
+    /**
+     * Dissolve a token for satoshis
+     * @public
+     * @param {string} tokenId The token you wish to redeem
+     * @param {number} amount How much you wish to redeem
+     * @param {RedeemOpts} [opts] Additional options
+     * @returns {Promise<RelysiaRedeem | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    redeemToken(tokenId: string, amount: number, opts?: RedeemOpts): Promise<RelysiaRedeem | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>;
+    /**
+     * @private
+     * @param {string} tokenId
+     * @param {number} amount
+     * @param {RedeemOpts} [opts]
+     * @returns {Promise<RelysiaRedeem | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    private redeemTokenRepeat;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

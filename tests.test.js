@@ -126,3 +126,8 @@ test('test asm', async () => {
     // TODO Add a test for asm()
     return;
 });
+
+test('token redemption', async () => {
+    // TODO Test Token Redemption
+    return;
+});
