@@ -209,3 +209,39 @@ export type RelysiaHistory = {
         nextPageToken: number;
     };
 };
+
+export type RelysiaSweep = {
+    status: status;
+    msg: string;
+    txIds: string[];
+    errors: any[];
+};
+
+/**
+ * @param walletID The wallet you want to use
+ * @param transfers All the transfers you wish to do
+ */
+export type RawTxOpts = {
+    walletID?: string;
+    transfers: TransferSchema[];
+};
+
+/**
+ * @param to The wallet you wish to send tokens/BSV to
+ * @param amount How much you wish to send
+ * @param notes Any notes you wish to send along side the transaction
+ * @param tokenId The STAS token ID you wish to send
+ */
+export type TransferSchema = {
+    to: string;
+    amount: string;
+    notes?: string;
+    tokenId?: string;
+    sn?: number;
+}
+
+export type RelysiaRawTx = {
+    stauts: status;
+    msg: string;
+    rawTxs: string[];
+}

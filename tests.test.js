@@ -105,3 +105,19 @@ test('get history', async () => {
         });
     });
 });
+
+test('sweep private key', async () => {
+    return await BetterRelysiaSDK.authenticate('satoshiasdsa@gmail.com', '4m4z1ngT3ch').then(data => {
+        if (typeof data !== 'object') return;
+        data.sweep('L3ufPcAVVwNRhbV6PJArwt2U4KyQkfUNUT8WXWoRq6KdL2bGtct7').then(data => {
+            expect(data).not.toEqual('Not a valid private key');
+        });
+    });
+});
+
+test('get raw tx', async() => {
+    const relysia = await BetterRelysiaSDK.authenticate('satoshiasdsa@gmail.com', '4m4z1ngT3ch');
+    if (typeof data !== 'object') return;
+    // TODO Get raw Tx from Relysia API with a token
+    return;
+});

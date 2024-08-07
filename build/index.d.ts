@@ -1,6 +1,7 @@
 /** @typedef {import('./types').BalanceOpts} BalanceOpts */
 /** @typedef {import('./types').CreateWalletOpt} CreateWalletOpt */
 /** @typedef {import('./types').HistoryOpts} HistoryOpts */
+/** @typedef {import('./types').RawTxOpts} RawTxOpts */
 /** @typedef {import('./types').RelysiaAuth} RelysiaAuth */
 /** @typedef {import('./types').RelysiaBalance} RelysiaBalance */
 /** @typedef {import('./types').RelysiaBasic} RelysiaBasic */
@@ -10,10 +11,13 @@
 /** @typedef {import('./types').RelysiaHistory} RelysiaHistory */
 /** @typedef {import('./types').RelysiaLeaderboard} RelysiaLeaderboard */
 /** @typedef {import('./types').RelysiaMnemonic} RelysiaMnemonic */
+/** @typedef {import('./types').RelysiaRawTx} RelysiaRawTx */
+/** @typedef {import('./types').RelysiaSweep} RelysiaSweep */
 /** @typedef {import('./types').RelysiaUserDetailsUnproccessed} RelysiaUserDetailsUnproccessed */
 /** @typedef {import('./types').RelysiaUserProfileData} RelysiaUserProfileData */
 /** @typedef {import('./types').RelysiaWallets} RelysiaWallets */
-import { BalanceOpts, CreateWalletOpt, HistoryOpts, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserProfileData, RelysiaWallets } from "./types";
+/** @typedef {import('./types').TransferSchema} TransferSchema */
+import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaSweep, RelysiaUserProfileData, RelysiaWallets } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -142,6 +146,34 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'>}
      */
     private historyRepeat;
+    /**
+     * Transfer all assets from a specific private key
+     * @public
+     * @param {string} privateKey The private key you wish to sweep from
+     * @param {string} [walletID]
+     * @returns {Promise<RelysiaSweep | 'Reached Max Attempts' | 'Non-existant wallet' | 'Not a valid private key'>}
+     */
+    sweep(privateKey: string, walletID?: string): Promise<RelysiaSweep | 'Reached Max Attempts' | 'Non-existant wallet' | 'Not a valid private key'>;
+    /**
+     * @private
+     * @param {string} privateKey
+     * @param {string} [walletID]
+     * @returns {Promise<RelysiaSweep | 'Reached Max Attempts' | 'Non-existant wallet' | 'Not a valid private key'>}
+     */
+    private sweepRepeat;
+    /**
+     * Create a raw transaction
+     * @public
+     * @param {RawTxOpts} opts Function Options
+     * @returns {Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    rawTx(opts: RawTxOpts): Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>;
+    /**
+     * @private
+     * @param {RawTxOpts} opts
+     * @returns {Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    private rawTxRepeat;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

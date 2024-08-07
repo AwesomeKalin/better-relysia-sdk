@@ -2,6 +2,7 @@
 /** @typedef {import('./types').BalanceOpts} BalanceOpts */
 /** @typedef {import('./types').CreateWalletOpt} CreateWalletOpt */
 /** @typedef {import('./types').HistoryOpts} HistoryOpts */
+/** @typedef {import('./types').RawTxOpts} RawTxOpts */
 /** @typedef {import('./types').RelysiaAuth} RelysiaAuth */
 /** @typedef {import('./types').RelysiaBalance} RelysiaBalance */
 /** @typedef {import('./types').RelysiaBasic} RelysiaBasic */
@@ -11,9 +12,12 @@
 /** @typedef {import('./types').RelysiaHistory} RelysiaHistory */
 /** @typedef {import('./types').RelysiaLeaderboard} RelysiaLeaderboard */
 /** @typedef {import('./types').RelysiaMnemonic} RelysiaMnemonic */
+/** @typedef {import('./types').RelysiaRawTx} RelysiaRawTx */
+/** @typedef {import('./types').RelysiaSweep} RelysiaSweep */
 /** @typedef {import('./types').RelysiaUserDetailsUnproccessed} RelysiaUserDetailsUnproccessed */
 /** @typedef {import('./types').RelysiaUserProfileData} RelysiaUserProfileData */
 /** @typedef {import('./types').RelysiaWallets} RelysiaWallets */
+/** @typedef {import('./types').TransferSchema} TransferSchema */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authenticate = exports.BetterRelysiaSDK = void 0;
 class BetterRelysiaSDK {
@@ -554,40 +558,44 @@ class BetterRelysiaSDK {
             accept: 'application/json',
             authToken: this.authToken,
         });
-        if (opts.nextPageToken !== undefined) {
-            headers.set('nextPageToken', opts.nextPageToken);
-        }
-        if (opts.tokenId !== undefined) {
-            headers.set('tokenId', opts.tokenId);
-        }
-        if (opts.symbol !== undefined) {
-            headers.set('symbol', opts.symbol);
-        }
-        if (opts.walletId !== undefined) {
-            headers.set('walletId', opts.walletId);
-        }
-        if (opts.type !== undefined) {
-            headers.set('type', opts.type);
-        }
-        if (opts.currency !== undefined) {
-            headers.set('currency', opts.currency);
-        }
-        if (opts.maxResults !== undefined) {
-            headers.set('maxResults', opts.maxResults.toString());
+        if (opts !== undefined) {
+            if (opts.nextPageToken !== undefined) {
+                headers.set('nextPageToken', opts.nextPageToken);
+            }
+            if (opts.tokenId !== undefined) {
+                headers.set('tokenId', opts.tokenId);
+            }
+            if (opts.symbol !== undefined) {
+                headers.set('symbol', opts.symbol);
+            }
+            if (opts.walletId !== undefined) {
+                headers.set('walletId', opts.walletId);
+            }
+            if (opts.type !== undefined) {
+                headers.set('type', opts.type);
+            }
+            if (opts.currency !== undefined) {
+                headers.set('currency', opts.currency);
+            }
+            if (opts.maxResults !== undefined) {
+                headers.set('maxResults', opts.maxResults.toString());
+            }
         }
         const response = await fetch('https://api.relysia.com/v2/balance', {
             method: 'GET',
             headers,
         });
         const body = await response.json();
-        if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
-            return 'Non-existant wallet';
-        }
-        if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
-            return 'Invalid nextPageToken';
-        }
-        if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
-            return 'Invalid Currency';
+        if (opts !== undefined) {
+            if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
+                return 'Non-existant wallet';
+            }
+            if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
+                return 'Invalid nextPageToken';
+            }
+            if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
+                return 'Invalid Currency';
+            }
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -605,40 +613,44 @@ class BetterRelysiaSDK {
             accept: 'application/json',
             authToken: this.authToken,
         });
-        if (opts.nextPageToken !== undefined) {
-            headers.set('nextPageToken', opts.nextPageToken);
-        }
-        if (opts.tokenId !== undefined) {
-            headers.set('tokenId', opts.tokenId);
-        }
-        if (opts.symbol !== undefined) {
-            headers.set('symbol', opts.symbol);
-        }
-        if (opts.walletId !== undefined) {
-            headers.set('walletId', opts.walletId);
-        }
-        if (opts.type !== undefined) {
-            headers.set('type', opts.type);
-        }
-        if (opts.currency !== undefined) {
-            headers.set('currency', opts.currency);
-        }
-        if (opts.maxResults !== undefined) {
-            headers.set('maxResults', opts.maxResults.toString());
+        if (opts !== undefined) {
+            if (opts.nextPageToken !== undefined) {
+                headers.set('nextPageToken', opts.nextPageToken);
+            }
+            if (opts.tokenId !== undefined) {
+                headers.set('tokenId', opts.tokenId);
+            }
+            if (opts.symbol !== undefined) {
+                headers.set('symbol', opts.symbol);
+            }
+            if (opts.walletId !== undefined) {
+                headers.set('walletId', opts.walletId);
+            }
+            if (opts.type !== undefined) {
+                headers.set('type', opts.type);
+            }
+            if (opts.currency !== undefined) {
+                headers.set('currency', opts.currency);
+            }
+            if (opts.maxResults !== undefined) {
+                headers.set('maxResults', opts.maxResults.toString());
+            }
         }
         const response = await fetch('https://api.relysia.com/v2/balance', {
             method: 'GET',
             headers,
         });
         const body = await response.json();
-        if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
-            return 'Non-existant wallet';
-        }
-        if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
-            return 'Invalid nextPageToken';
-        }
-        if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
-            return 'Invalid Currency';
+        if (opts !== undefined) {
+            if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
+                return 'Non-existant wallet';
+            }
+            if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
+                return 'Invalid nextPageToken';
+            }
+            if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
+                return 'Invalid Currency';
+            }
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -665,31 +677,35 @@ class BetterRelysiaSDK {
             accept: 'application/json',
             authToken: this.authToken,
         });
-        if (opts.limit !== undefined) {
-            headers.set('limit', opts.limit);
-        }
-        if (opts.nextPageToken !== undefined) {
-            headers.set('nextPageToken', opts.nextPageToken);
-        }
-        if (opts.protocol !== undefined) {
-            headers.set('protocol', opts.protocol);
-        }
-        if (opts.tokenId !== undefined) {
-            headers.set('tokenId', opts.tokenId);
-        }
-        if (opts.type !== undefined) {
-            headers.set('type', opts.type);
-        }
-        if (opts.walletID !== undefined) {
-            headers.set('walletID', opts.walletID);
+        if (opts !== undefined) {
+            if (opts.limit !== undefined) {
+                headers.set('limit', opts.limit);
+            }
+            if (opts.nextPageToken !== undefined) {
+                headers.set('nextPageToken', opts.nextPageToken);
+            }
+            if (opts.protocol !== undefined) {
+                headers.set('protocol', opts.protocol);
+            }
+            if (opts.tokenId !== undefined) {
+                headers.set('tokenId', opts.tokenId);
+            }
+            if (opts.type !== undefined) {
+                headers.set('type', opts.type);
+            }
+            if (opts.walletID !== undefined) {
+                headers.set('walletID', opts.walletID);
+            }
         }
         const response = await fetch('https://api.relysia.com/v2/history', {
             method: 'GET',
             headers,
         });
         const body = await response.json();
-        if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-            return 'Non-existant wallet';
+        if (opts !== undefined) {
+            if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+                return 'Non-existant wallet';
+            }
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -707,31 +723,35 @@ class BetterRelysiaSDK {
             accept: 'application/json',
             authToken: this.authToken,
         });
-        if (opts.limit !== undefined) {
-            headers.set('limit', opts.limit);
-        }
-        if (opts.nextPageToken !== undefined) {
-            headers.set('nextPageToken', opts.nextPageToken);
-        }
-        if (opts.protocol !== undefined) {
-            headers.set('protocol', opts.protocol);
-        }
-        if (opts.tokenId !== undefined) {
-            headers.set('tokenId', opts.tokenId);
-        }
-        if (opts.type !== undefined) {
-            headers.set('type', opts.type);
-        }
-        if (opts.walletID !== undefined) {
-            headers.set('walletID', opts.walletID);
+        if (opts !== undefined) {
+            if (opts.limit !== undefined) {
+                headers.set('limit', opts.limit);
+            }
+            if (opts.nextPageToken !== undefined) {
+                headers.set('nextPageToken', opts.nextPageToken);
+            }
+            if (opts.protocol !== undefined) {
+                headers.set('protocol', opts.protocol);
+            }
+            if (opts.tokenId !== undefined) {
+                headers.set('tokenId', opts.tokenId);
+            }
+            if (opts.type !== undefined) {
+                headers.set('type', opts.type);
+            }
+            if (opts.walletID !== undefined) {
+                headers.set('walletID', opts.walletID);
+            }
         }
         const response = await fetch('https://api.relysia.com/v2/history', {
             method: 'GET',
             headers,
         });
         const body = await response.json();
-        if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-            return 'Non-existant wallet';
+        if (opts !== undefined) {
+            if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+                return 'Non-existant wallet';
+            }
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -741,6 +761,159 @@ class BetterRelysiaSDK {
             return 'Reached Max Attempts';
         }
         return body.data;
+    }
+    /**
+     * Transfer all assets from a specific private key
+     * @public
+     * @param {string} privateKey The private key you wish to sweep from
+     * @param {string} [walletID]
+     * @returns {Promise<RelysiaSweep | 'Reached Max Attempts' | 'Non-existant wallet' | 'Not a valid private key'>}
+     */
+    async sweep(privateKey, walletID) {
+        this.retriesLeft = this.retries;
+        const verifyCheck = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+        const headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+        if (walletID !== undefined) {
+            headers.set('walletID', walletID);
+        }
+        const body = JSON.stringify({ privateKey });
+        const response = await fetch('https://api.relysia.com/v1/sweep', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+            return 'Non-existant wallet';
+        }
+        if (res.data.msg === 'Not a valid private key value !') {
+            return 'Not a valid private key';
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.sweepRepeat(privateKey, walletID);
+        }
+        return res.data;
+    }
+    /**
+     * @private
+     * @param {string} privateKey
+     * @param {string} [walletID]
+     * @returns {Promise<RelysiaSweep | 'Reached Max Attempts' | 'Non-existant wallet' | 'Not a valid private key'>}
+     */
+    async sweepRepeat(privateKey, walletID) {
+        const headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+        if (walletID !== undefined) {
+            headers.set('walletID', walletID);
+        }
+        const body = JSON.stringify({ privateKey });
+        const response = await fetch('https://api.relysia.com/v1/sweep', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+            return 'Non-existant wallet';
+        }
+        if (res.data.msg === 'Not a valid private key value !') {
+            return 'Not a valid private key';
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.sweepRepeat(privateKey, walletID);
+            }
+        }
+        return res.data;
+    }
+    /**
+     * Create a raw transaction
+     * @public
+     * @param {RawTxOpts} opts Function Options
+     * @returns {Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    async rawTx(opts) {
+        this.retriesLeft = this.retries;
+        const verifyCheck = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+        const headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+        if (opts.walletID !== undefined) {
+            headers.set('walletID', opts.walletID);
+        }
+        const body = JSON.stringify({ dataArray: opts.transfers });
+        const response = await fetch('https://api.relysia.com/v1/rawtx', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            return 'Insufficient Balance';
+        }
+        if (res.statusCode !== 200) {
+            this.retriesLeft--;
+            return this.rawTxRepeat(opts);
+        }
+        return res.data;
+    }
+    /**
+     * @private
+     * @param {RawTxOpts} opts
+     * @returns {Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    async rawTxRepeat(opts) {
+        const headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+        if (opts.walletID !== undefined) {
+            headers.set('walletID', opts.walletID);
+        }
+        const body = JSON.stringify({ dataArray: opts.transfers });
+        const response = await fetch('https://api.relysia.com/v1/rawtx', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            return 'Insufficient Balance';
+        }
+        if (res.statusCode !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.rawTxRepeat(opts);
+            }
+            return 'Reached Max Attempts';
+        }
+        return res.data;
     }
 }
 exports.BetterRelysiaSDK = BetterRelysiaSDK;

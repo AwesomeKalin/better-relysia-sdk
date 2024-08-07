@@ -371,3 +371,57 @@ export type RelysiaHistory = {
         nextPageToken: number;
     };
 };
+/**
+ * @typedef {Object} RelysiaSweep
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} txIds
+ * @property {any[]} errors
+ */
+export type RelysiaSweep = {
+    status: status;
+    msg: string;
+    txIds: string[];
+    errors: any[];
+};
+/**
+ * @param walletID The wallet you want to use
+ * @param transfers All the transfers you wish to do
+ * @typedef {Object} RawTxOpts
+ * @property {string} [walletID]
+ * @property {TransferSchema[]} transfers
+ */
+export type RawTxOpts = {
+    walletID?: string;
+    transfers: TransferSchema[];
+};
+/**
+ * @param to The wallet you wish to send tokens/BSV to
+ * @param amount How much you wish to send
+ * @param notes Any notes you wish to send along side the transaction
+ * @param tokenId The STAS token ID you wish to send
+ * @typedef {Object} TransferSchema
+ * @property {string} to
+ * @property {string} amount
+ * @property {string} [notes]
+ * @property {string} [tokenId]
+ * @property {number} [sn]
+ */
+export type TransferSchema = {
+    to: string;
+    amount: string;
+    notes?: string;
+    tokenId?: string;
+    sn?: number;
+};
+/**
+ * @typedef {Object} RelysiaRawTx
+ * @property {status} stauts
+ * @property {string} msg
+ * @property {string[]} rawTxs
+ */
+export type RelysiaRawTx = {
+    stauts: status;
+    msg: string;
+    rawTxs: string[];
+};

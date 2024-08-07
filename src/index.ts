@@ -1,4 +1,4 @@
-import { BalanceOpts, CreateWalletOpt, HistoryOpts, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets } from "./types";
+import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -605,32 +605,34 @@ export class BetterRelysiaSDK {
             authToken: this.authToken,
         });
 
-        if (opts.nextPageToken !== undefined) {
-            headers.set('nextPageToken', opts.nextPageToken)
-        }
+        if (opts !== undefined) {
+            if (opts.nextPageToken !== undefined) {
+                headers.set('nextPageToken', opts.nextPageToken)
+            }
 
-        if (opts.tokenId !== undefined) {
-            headers.set('tokenId', opts.tokenId);
-        }
+            if (opts.tokenId !== undefined) {
+                headers.set('tokenId', opts.tokenId);
+            }
 
-        if (opts.symbol !== undefined) {
-            headers.set('symbol', opts.symbol);
-        }
+            if (opts.symbol !== undefined) {
+                headers.set('symbol', opts.symbol);
+            }
 
-        if (opts.walletId !== undefined) {
-            headers.set('walletId', opts.walletId);
-        }
+            if (opts.walletId !== undefined) {
+                headers.set('walletId', opts.walletId);
+            }
 
-        if (opts.type !== undefined) {
-            headers.set('type', opts.type);
-        }
+            if (opts.type !== undefined) {
+                headers.set('type', opts.type);
+            }
 
-        if (opts.currency !== undefined) {
-            headers.set('currency', opts.currency);
-        }
+            if (opts.currency !== undefined) {
+                headers.set('currency', opts.currency);
+            }
 
-        if (opts.maxResults !== undefined) {
-            headers.set('maxResults', opts.maxResults.toString());
+            if (opts.maxResults !== undefined) {
+                headers.set('maxResults', opts.maxResults.toString());
+            }
         }
 
         const response: Response = await fetch('https://api.relysia.com/v2/balance', {
@@ -640,16 +642,18 @@ export class BetterRelysiaSDK {
 
         const body: RelysiaBasic<RelysiaBalance> = await response.json();
 
-        if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
-            return 'Non-existant wallet';
-        }
+        if (opts !== undefined) {
+            if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
+                return 'Non-existant wallet';
+            }
 
-        if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
-            return 'Invalid nextPageToken';
-        }
+            if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
+                return 'Invalid nextPageToken';
+            }
 
-        if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
-            return 'Invalid Currency';
+            if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
+                return 'Invalid Currency';
+            }
         }
 
         if (response.status !== 200) {
@@ -666,32 +670,34 @@ export class BetterRelysiaSDK {
             authToken: this.authToken,
         });
 
-        if (opts.nextPageToken !== undefined) {
-            headers.set('nextPageToken', opts.nextPageToken)
-        }
+        if (opts !== undefined) {
+            if (opts.nextPageToken !== undefined) {
+                headers.set('nextPageToken', opts.nextPageToken)
+            }
 
-        if (opts.tokenId !== undefined) {
-            headers.set('tokenId', opts.tokenId);
-        }
+            if (opts.tokenId !== undefined) {
+                headers.set('tokenId', opts.tokenId);
+            }
 
-        if (opts.symbol !== undefined) {
-            headers.set('symbol', opts.symbol);
-        }
+            if (opts.symbol !== undefined) {
+                headers.set('symbol', opts.symbol);
+            }
 
-        if (opts.walletId !== undefined) {
-            headers.set('walletId', opts.walletId);
-        }
+            if (opts.walletId !== undefined) {
+                headers.set('walletId', opts.walletId);
+            }
 
-        if (opts.type !== undefined) {
-            headers.set('type', opts.type);
-        }
+            if (opts.type !== undefined) {
+                headers.set('type', opts.type);
+            }
 
-        if (opts.currency !== undefined) {
-            headers.set('currency', opts.currency);
-        }
+            if (opts.currency !== undefined) {
+                headers.set('currency', opts.currency);
+            }
 
-        if (opts.maxResults !== undefined) {
-            headers.set('maxResults', opts.maxResults.toString());
+            if (opts.maxResults !== undefined) {
+                headers.set('maxResults', opts.maxResults.toString());
+            }
         }
 
         const response: Response = await fetch('https://api.relysia.com/v2/balance', {
@@ -701,16 +707,18 @@ export class BetterRelysiaSDK {
 
         const body: RelysiaBasic<RelysiaBalance> = await response.json();
 
-        if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
-            return 'Non-existant wallet';
-        }
+        if (opts !== undefined) {
+            if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
+                return 'Non-existant wallet';
+            }
 
-        if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
-            return 'Invalid nextPageToken';
-        }
+            if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
+                return 'Invalid nextPageToken';
+            }
 
-        if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
-            return 'Invalid Currency';
+            if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
+                return 'Invalid Currency';
+            }
         }
 
         if (response.status !== 200) {
@@ -742,28 +750,30 @@ export class BetterRelysiaSDK {
             authToken: this.authToken,
         });
 
-        if (opts.limit !== undefined) {
-            headers.set('limit', opts.limit);
-        }
+        if (opts !== undefined) {
+            if (opts.limit !== undefined) {
+                headers.set('limit', opts.limit);
+            }
 
-        if (opts.nextPageToken !== undefined) {
-            headers.set('nextPageToken', opts.nextPageToken);
-        }
+            if (opts.nextPageToken !== undefined) {
+                headers.set('nextPageToken', opts.nextPageToken);
+            }
 
-        if (opts.protocol !== undefined) {
-            headers.set('protocol', opts.protocol);
-        }
+            if (opts.protocol !== undefined) {
+                headers.set('protocol', opts.protocol);
+            }
 
-        if (opts.tokenId !== undefined) {
-            headers.set('tokenId', opts.tokenId);
-        }
+            if (opts.tokenId !== undefined) {
+                headers.set('tokenId', opts.tokenId);
+            }
 
-        if (opts.type !== undefined) {
-            headers.set('type', opts.type);
-        }
+            if (opts.type !== undefined) {
+                headers.set('type', opts.type);
+            }
 
-        if (opts.walletID !== undefined) {
-            headers.set('walletID', opts.walletID);
+            if (opts.walletID !== undefined) {
+                headers.set('walletID', opts.walletID);
+            }
         }
 
         const response: Response = await fetch('https://api.relysia.com/v2/history', {
@@ -773,8 +783,10 @@ export class BetterRelysiaSDK {
 
         const body: RelysiaBasic<RelysiaHistory> = await response.json();
 
-        if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-            return 'Non-existant wallet';
+        if (opts !== undefined) {
+            if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+                return 'Non-existant wallet';
+            }
         }
 
         if (response.status !== 200) {
@@ -791,28 +803,30 @@ export class BetterRelysiaSDK {
             authToken: this.authToken,
         });
 
-        if (opts.limit !== undefined) {
-            headers.set('limit', opts.limit);
-        }
+        if (opts !== undefined) {
+            if (opts.limit !== undefined) {
+                headers.set('limit', opts.limit);
+            }
 
-        if (opts.nextPageToken !== undefined) {
-            headers.set('nextPageToken', opts.nextPageToken);
-        }
+            if (opts.nextPageToken !== undefined) {
+                headers.set('nextPageToken', opts.nextPageToken);
+            }
 
-        if (opts.protocol !== undefined) {
-            headers.set('protocol', opts.protocol);
-        }
+            if (opts.protocol !== undefined) {
+                headers.set('protocol', opts.protocol);
+            }
 
-        if (opts.tokenId !== undefined) {
-            headers.set('tokenId', opts.tokenId);
-        }
+            if (opts.tokenId !== undefined) {
+                headers.set('tokenId', opts.tokenId);
+            }
 
-        if (opts.type !== undefined) {
-            headers.set('type', opts.type);
-        }
+            if (opts.type !== undefined) {
+                headers.set('type', opts.type);
+            }
 
-        if (opts.walletID !== undefined) {
-            headers.set('walletID', opts.walletID);
+            if (opts.walletID !== undefined) {
+                headers.set('walletID', opts.walletID);
+            }
         }
 
         const response: Response = await fetch('https://api.relysia.com/v2/history', {
@@ -822,8 +836,10 @@ export class BetterRelysiaSDK {
 
         const body: RelysiaBasic<RelysiaHistory> = await response.json();
 
-        if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-            return 'Non-existant wallet';
+        if (opts !== undefined) {
+            if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+                return 'Non-existant wallet';
+            }
         }
 
         if (response.status !== 200) {
@@ -836,6 +852,184 @@ export class BetterRelysiaSDK {
         }
 
         return body.data;
+    }
+
+    /**
+     * Transfer all assets from a specific private key
+     * @param privateKey The private key you wish to sweep from
+     */
+    public async sweep(privateKey: string, walletID?: string): Promise<RelysiaSweep | 'Reached Max Attempts' | 'Non-existant wallet' | 'Not a valid private key'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletID !== undefined) {
+            headers.set('walletID', walletID);
+        }
+
+        const body: BodyInit = JSON.stringify({ privateKey });
+
+        const response: Response = await fetch('https://api.relysia.com/v1/sweep', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaSweep> = await response.json();
+
+        if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (res.data.msg === 'Not a valid private key value !') {
+            return 'Not a valid private key';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.sweepRepeat(privateKey, walletID);
+        }
+
+        return res.data;
+    }
+
+    private async sweepRepeat(privateKey: string, walletID?: string): Promise<RelysiaSweep | 'Reached Max Attempts' | 'Non-existant wallet' | 'Not a valid private key'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletID !== undefined) {
+            headers.set('walletID', walletID);
+        }
+
+        const body: BodyInit = JSON.stringify({ privateKey });
+
+        const response: Response = await fetch('https://api.relysia.com/v1/sweep', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaSweep> = await response.json();
+
+        if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (res.data.msg === 'Not a valid private key value !') {
+            return 'Not a valid private key';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.sweepRepeat(privateKey, walletID);
+            }
+        }
+
+        return res.data;
+    }
+
+    /**
+     * Create a raw transaction
+     * @param opts Function Options
+     */
+    public async rawTx(opts: RawTxOpts): Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (opts.walletID !== undefined) {
+            headers.set('walletID', opts.walletID);
+        }
+
+        const body: BodyInit = JSON.stringify({ dataArray: opts.transfers });
+        const response: Response = await fetch('https://api.relysia.com/v1/rawtx', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaRawTx> = await response.json();
+
+        if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            return 'Insufficient Balance';
+        }
+
+        if (res.statusCode !== 200) {
+            this.retriesLeft--;
+            return this.rawTxRepeat(opts);
+        }
+
+        return res.data;
+    }
+
+    private async rawTxRepeat(opts: RawTxOpts): Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (opts.walletID !== undefined) {
+            headers.set('walletID', opts.walletID);
+        }
+
+        const body: BodyInit = JSON.stringify({ dataArray: opts.transfers });
+        const response: Response = await fetch('https://api.relysia.com/v1/rawtx', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaRawTx> = await response.json();
+
+        if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            return 'Insufficient Balance';
+        }
+
+        if (res.statusCode !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.rawTxRepeat(opts);
+            }
+
+            return 'Reached Max Attempts';
+        }
+
+        return res.data;
     }
 }
 
