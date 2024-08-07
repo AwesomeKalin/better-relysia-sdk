@@ -1,4 +1,4 @@
-import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from "./types";
+import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RelysiaAsm, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -1024,6 +1024,109 @@ export class BetterRelysiaSDK {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return this.rawTxRepeat(opts);
+            }
+
+            return 'Reached Max Attempts';
+        }
+
+        return res.data;
+    }
+
+    /**
+     * Make a transaction with a custom script. Relatively limited and should be avoided where possible
+     * @param asm The custom bitcoin script to be added as an output
+     * @param amount The amount of BSV to lock in the script
+     * @param walletID The wallet you want to use
+     */
+    public async asm(asm: string, amount: number, walletID?: string): Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'> {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletID !== undefined) {
+            headers.set('walletID', walletID);
+        }
+
+        const body: BodyInit = JSON.stringify({
+            dataArray: [
+                {
+                    asm,
+                    amount,
+                }
+            ]
+        });
+
+        const response: Response = await fetch('https://api.relysia.com/v1/asm', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaAsm> = await response.json();
+
+        if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.asmRepeat(asm, amount, walletID);
+        }
+
+        return res.data;
+    }
+
+    private async asmRepeat(asm: string, amount: number, walletID?: string): Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'> {
+        const headers: Headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+
+        if (walletID !== undefined) {
+            headers.set('walletID', walletID);
+        }
+
+        const body: BodyInit = JSON.stringify({
+            dataArray: [
+                {
+                    asm,
+                    amount,
+                }
+            ]
+        });
+
+        const response: Response = await fetch('https://api.relysia.com/v1/asm', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaAsm> = await response.json();
+
+        if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+            return 'Non-existant wallet';
+        }
+
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.asmRepeat(asm, amount, walletID);
             }
 
             return 'Reached Max Attempts';

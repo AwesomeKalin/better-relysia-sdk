@@ -2,6 +2,7 @@
 /** @typedef {import('./types').CreateWalletOpt} CreateWalletOpt */
 /** @typedef {import('./types').HistoryOpts} HistoryOpts */
 /** @typedef {import('./types').RawTxOpts} RawTxOpts */
+/** @typedef {import('./types').RelysiaAsm} RelysiaAsm */
 /** @typedef {import('./types').RelysiaAuth} RelysiaAuth */
 /** @typedef {import('./types').RelysiaBalance} RelysiaBalance */
 /** @typedef {import('./types').RelysiaBasic} RelysiaBasic */
@@ -17,7 +18,7 @@
 /** @typedef {import('./types').RelysiaUserProfileData} RelysiaUserProfileData */
 /** @typedef {import('./types').RelysiaWallets} RelysiaWallets */
 /** @typedef {import('./types').TransferSchema} TransferSchema */
-import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaSweep, RelysiaUserProfileData, RelysiaWallets } from "./types";
+import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RelysiaAsm, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaSweep, RelysiaUserProfileData, RelysiaWallets } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -174,6 +175,23 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
      */
     private rawTxRepeat;
+    /**
+     * Make a transaction with a custom script. Relatively limited and should be avoided where possible
+     * @public
+     * @param {string} asm The custom bitcoin script to be added as an output
+     * @param {number} amount The amount of BSV to lock in the script
+     * @param {string} [walletID] The wallet you want to use
+     * @returns {Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    asm(asm: string, amount: number, walletID?: string): Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>;
+    /**
+     * @private
+     * @param {string} asm
+     * @param {number} amount
+     * @param {string} [walletID]
+     * @returns {Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    private asmRepeat;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

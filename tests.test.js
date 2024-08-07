@@ -115,9 +115,14 @@ test('sweep private key', async () => {
     });
 });
 
-test('get raw tx', async() => {
+test('get raw tx', async () => {
     const relysia = await BetterRelysiaSDK.authenticate('satoshiasdsa@gmail.com', '4m4z1ngT3ch');
     if (typeof data !== 'object') return;
     // TODO Get raw Tx from Relysia API with a token
+    return;
+});
+
+test('test asm', async () => {
+    // TODO Add a test for asm()
     return;
 });

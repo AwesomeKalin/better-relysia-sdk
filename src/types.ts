@@ -238,10 +238,16 @@ export type TransferSchema = {
     notes?: string;
     tokenId?: string;
     sn?: number;
-}
+};
 
 export type RelysiaRawTx = {
     stauts: status;
     msg: string;
     rawTxs: string[];
-}
+};
+
+export type RelysiaAsm = {
+    status: status;
+    msg: string;
+    txid: string;
+};

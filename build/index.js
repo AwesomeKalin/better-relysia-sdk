@@ -3,6 +3,7 @@
 /** @typedef {import('./types').CreateWalletOpt} CreateWalletOpt */
 /** @typedef {import('./types').HistoryOpts} HistoryOpts */
 /** @typedef {import('./types').RawTxOpts} RawTxOpts */
+/** @typedef {import('./types').RelysiaAsm} RelysiaAsm */
 /** @typedef {import('./types').RelysiaAuth} RelysiaAuth */
 /** @typedef {import('./types').RelysiaBalance} RelysiaBalance */
 /** @typedef {import('./types').RelysiaBasic} RelysiaBasic */
@@ -910,6 +911,97 @@ class BetterRelysiaSDK {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return this.rawTxRepeat(opts);
+            }
+            return 'Reached Max Attempts';
+        }
+        return res.data;
+    }
+    /**
+     * Make a transaction with a custom script. Relatively limited and should be avoided where possible
+     * @public
+     * @param {string} asm The custom bitcoin script to be added as an output
+     * @param {number} amount The amount of BSV to lock in the script
+     * @param {string} [walletID] The wallet you want to use
+     * @returns {Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    async asm(asm, amount, walletID) {
+        this.retriesLeft = this.retries;
+        const verifyCheck = await this.checkAuth();
+        if (verifyCheck === false) {
+            return 'Reached Max Attempts';
+        }
+        const headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+        if (walletID !== undefined) {
+            headers.set('walletID', walletID);
+        }
+        const body = JSON.stringify({
+            dataArray: [
+                {
+                    asm,
+                    amount,
+                }
+            ]
+        });
+        const response = await fetch('https://api.relysia.com/v1/asm', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+            return 'Non-existant wallet';
+        }
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.asmRepeat(asm, amount, walletID);
+        }
+        return res.data;
+    }
+    /**
+     * @private
+     * @param {string} asm
+     * @param {number} amount
+     * @param {string} [walletID]
+     * @returns {Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     */
+    async asmRepeat(asm, amount, walletID) {
+        const headers = new Headers({
+            accept: 'application/json',
+            authToken: this.authToken,
+        });
+        if (walletID !== undefined) {
+            headers.set('walletID', walletID);
+        }
+        const body = JSON.stringify({
+            dataArray: [
+                {
+                    asm,
+                    amount,
+                }
+            ]
+        });
+        const response = await fetch('https://api.relysia.com/v1/asm', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+            return 'Non-existant wallet';
+        }
+        if (res.data.msg === 'Insufficient Balance') {
+            return 'Insufficient Balance';
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.asmRepeat(asm, amount, walletID);
             }
             return 'Reached Max Attempts';
         }

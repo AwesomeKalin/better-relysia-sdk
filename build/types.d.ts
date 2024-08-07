@@ -425,3 +425,14 @@ export type RelysiaRawTx = {
     msg: string;
     rawTxs: string[];
 };
+/**
+ * @typedef {Object} RelysiaAsm
+ * @property {status} status
+ * @property {string} msg
+ * @property {string} txid
+ */
+export type RelysiaAsm = {
+    status: status;
+    msg: string;
+    txid: string;
+};
