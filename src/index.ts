@@ -7,6 +7,8 @@ export class BetterRelysiaSDK {
     password: string;
     retries: number;
     retriesLeft: number;
+    getHeaders = new Headers({ accept: 'application/json' });
+    postHeaders: Headers = new Headers({ accept: 'application/json', 'Content-Type': 'application/json', });
 
     private async checkAuth(): Promise<void | false> {
         if (this.authTimestamp <= Date.now() - 600000) {
@@ -19,7 +21,7 @@ export class BetterRelysiaSDK {
                 email: this.email,
                 password: this.password,
             }),
-            headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json', }),
+            headers: this.postHeaders,
         });
 
         this.authTimestamp = Date.now();
@@ -36,6 +38,8 @@ export class BetterRelysiaSDK {
         }
 
         this.authToken = body.data.token;
+        this.getHeaders.set('authToken', this.authToken);
+        this.postHeaders.set('authToken', this.authToken);
     }
 
     /**
@@ -50,7 +54,7 @@ export class BetterRelysiaSDK {
 
         const response: Response = await fetch('https://api.relysia.com/v1/user', {
             method: 'GET',
-            headers: new Headers({ accept: 'application/json', authToken: this.authToken }),
+            headers: this.getHeaders,
         });
 
         if (response.status !== 200) {
@@ -80,7 +84,7 @@ export class BetterRelysiaSDK {
     private async getUserProfileRepeat(): Promise<RelysiaUserProfileData> {
         const response: Response = await fetch('https://api.relysia.com/v1/user', {
             method: 'GET',
-            headers: new Headers({ accept: 'application/json', authToken: this.authToken }),
+            headers: this.getHeaders,
         });
 
         if (response.status !== 200) {
@@ -123,11 +127,8 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-            walletTitle,
-        });
+        const headers: Headers = this.getHeaders
+        headers.set('walletTitle', walletTitle);
 
         if (opt?.mnemonicPhrase !== undefined) {
             headers.set('mnemonicPhrase', opt.mnemonicPhrase);
@@ -175,11 +176,8 @@ export class BetterRelysiaSDK {
     }
 
     private async createWalletRepeat(walletTitle: string, opt?: CreateWalletOpt): Promise<RelysiaCreateWallet> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-            walletTitle,
-        });
+        const headers: Headers = this.getHeaders
+        headers.set('walletTitle', walletTitle);
 
         if (opt?.mnemonicPhrase !== undefined) {
             headers.set('mnemonicPhrase', opt.mnemonicPhrase);
@@ -242,10 +240,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
@@ -271,10 +266,7 @@ export class BetterRelysiaSDK {
     }
 
     private async getAddressRepeat(walletId?: string): Promise<RelysiaGetAddress> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
@@ -315,10 +307,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
@@ -344,10 +333,7 @@ export class BetterRelysiaSDK {
     }
 
     private async getAllAddressessRepeat(walletId?: string): Promise<RelysiaGetAllAddress> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
@@ -389,11 +375,8 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-            tokenId,
-        });
+        const headers: Headers = this.getHeaders;
+        headers.set('tokenId', tokenId);
 
         if (nextPageToken !== undefined) {
             headers.set('nextPageToken', nextPageToken.toString());
@@ -423,11 +406,8 @@ export class BetterRelysiaSDK {
     }
 
     private async leaderboardRepeat(tokenId: string, nextPageToken?: number): Promise<RelysiaLeaderboard> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-            tokenId,
-        });
+        const headers: Headers = this.getHeaders;
+        headers.set('tokenId', tokenId);
 
         if (nextPageToken !== undefined) {
             headers.set('nextPageToken', nextPageToken.toString());
@@ -471,10 +451,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         const response: Response = await fetch('https://api.relysia.com/v1/wallets', {
             method: 'GET',
@@ -492,10 +469,7 @@ export class BetterRelysiaSDK {
     }
 
     private async walletsRepeat(): Promise<RelysiaWallets> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         const response: Response = await fetch('https://api.relysia.com/v1/wallets', {
             method: 'GET',
@@ -527,10 +501,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
@@ -556,10 +527,7 @@ export class BetterRelysiaSDK {
     }
 
     private async mnemonicRepeat(walletId?: string): Promise<RelysiaMnemonic> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
@@ -600,10 +568,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (opts !== undefined) {
             if (opts.nextPageToken !== undefined) {
@@ -665,10 +630,7 @@ export class BetterRelysiaSDK {
     }
 
     private async balanceRepeat(opts?: BalanceOpts): Promise<RelysiaBalance> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (opts !== undefined) {
             if (opts.nextPageToken !== undefined) {
@@ -745,10 +707,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (opts !== undefined) {
             if (opts.limit !== undefined) {
@@ -798,10 +757,7 @@ export class BetterRelysiaSDK {
     }
 
     private async historyRepeat(opts?: HistoryOpts): Promise<RelysiaHistory> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.getHeaders;
 
         if (opts !== undefined) {
             if (opts.limit !== undefined) {
@@ -866,10 +822,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.postHeaders;
 
         if (walletID !== undefined) {
             headers.set('walletID', walletID);
@@ -902,10 +855,7 @@ export class BetterRelysiaSDK {
     }
 
     private async sweepRepeat(privateKey: string, walletID?: string): Promise<RelysiaSweep> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.postHeaders;
 
         if (walletID !== undefined) {
             headers.set('walletID', walletID);
@@ -953,10 +903,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.postHeaders;
 
         if (opts.walletID !== undefined) {
             headers.set('walletID', opts.walletID);
@@ -992,10 +939,7 @@ export class BetterRelysiaSDK {
     }
 
     private async rawTxRepeat(opts: RawTxOpts): Promise<RelysiaRawTx> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.postHeaders;
 
         if (opts.walletID !== undefined) {
             headers.set('walletID', opts.walletID);
@@ -1048,10 +992,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.postHeaders;
 
         if (walletID !== undefined) {
             headers.set('walletID', walletID);
@@ -1091,10 +1032,7 @@ export class BetterRelysiaSDK {
     }
 
     private async asmRepeat(asm: string, amount: number, walletID?: string): Promise<RelysiaAsm> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.postHeaders;
 
         if (walletID !== undefined) {
             headers.set('walletID', walletID);
@@ -1151,10 +1089,7 @@ export class BetterRelysiaSDK {
             throw new Error('Reached Max Attempts');
         }
 
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.postHeaders;
 
         let body: BodyInit;
 
@@ -1212,10 +1147,7 @@ export class BetterRelysiaSDK {
     }
 
     private async redeemTokenRepeat(tokenId: string, amount: number, opts?: RedeemOpts): Promise<RelysiaRedeem> {
-        const headers: Headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers: Headers = this.postHeaders;
 
         let body: BodyInit;
 
@@ -1290,7 +1222,7 @@ export async function authenticate(email: string, password: string, retries: num
             email,
             password,
         }),
-        headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json', }),
+        headers: postHeaders,
     });
 
     let toReturn: BetterRelysiaSDK = new BetterRelysiaSDK();
@@ -1330,7 +1262,7 @@ async function authenticateAfterFail(email: string, password: string, retries: n
             email,
             password,
         }),
-        headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json', }),
+        headers: postHeaders,
     });
 
     let toReturn: BetterRelysiaSDK = new BetterRelysiaSDK();
@@ -1364,5 +1296,10 @@ async function authenticateAfterFail(email: string, password: string, retries: n
     }
 
     toReturn.authToken = body.data.token;
+    this.getHeaders.set('authToken', this.authToken);
+    this.postHeaders.set('authToken', this.authToken);
     return toReturn;
 }
+
+const getHeaders = new Headers({ accept: 'application/json' });
+const postHeaders: Headers = new Headers({ accept: 'application/json', 'Content-Type': 'application/json', });

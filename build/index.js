@@ -1,28 +1,8 @@
 "use strict";
-/** @typedef {import('./types').BalanceOpts} BalanceOpts */
-/** @typedef {import('./types').CreateWalletOpt} CreateWalletOpt */
-/** @typedef {import('./types').HistoryOpts} HistoryOpts */
-/** @typedef {import('./types').RawTxOpts} RawTxOpts */
-/** @typedef {import('./types').RedeemOpts} RedeemOpts */
-/** @typedef {import('./types').RelysiaAsm} RelysiaAsm */
-/** @typedef {import('./types').RelysiaAuth} RelysiaAuth */
-/** @typedef {import('./types').RelysiaBalance} RelysiaBalance */
-/** @typedef {import('./types').RelysiaBasic} RelysiaBasic */
-/** @typedef {import('./types').RelysiaCreateWallet} RelysiaCreateWallet */
-/** @typedef {import('./types').RelysiaGetAddress} RelysiaGetAddress */
-/** @typedef {import('./types').RelysiaGetAllAddress} RelysiaGetAllAddress */
-/** @typedef {import('./types').RelysiaHistory} RelysiaHistory */
-/** @typedef {import('./types').RelysiaLeaderboard} RelysiaLeaderboard */
-/** @typedef {import('./types').RelysiaMnemonic} RelysiaMnemonic */
-/** @typedef {import('./types').RelysiaRawTx} RelysiaRawTx */
-/** @typedef {import('./types').RelysiaRedeem} RelysiaRedeem */
-/** @typedef {import('./types').RelysiaSweep} RelysiaSweep */
-/** @typedef {import('./types').RelysiaUserDetailsUnproccessed} RelysiaUserDetailsUnproccessed */
-/** @typedef {import('./types').RelysiaUserProfileData} RelysiaUserProfileData */
-/** @typedef {import('./types').RelysiaWallets} RelysiaWallets */
-/** @typedef {import('./types').TransferSchema} TransferSchema */
+/** @import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from './types' */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authenticate = exports.BetterRelysiaSDK = void 0;
+exports.BetterRelysiaSDK = void 0;
+exports.authenticate = authenticate;
 class BetterRelysiaSDK {
     authToken;
     authTimestamp;
@@ -30,6 +10,10 @@ class BetterRelysiaSDK {
     password;
     retries;
     retriesLeft;
+    /** @default Headers */
+    getHeaders = new Headers({ accept: 'application/json' });
+    /** @default Headers */
+    postHeaders = new Headers({ accept: 'application/json', 'Content-Type': 'application/json', });
     /**
      * @private
      * @returns {Promise<void | false>}
@@ -44,7 +28,7 @@ class BetterRelysiaSDK {
                 email: this.email,
                 password: this.password,
             }),
-            headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json', }),
+            headers: this.postHeaders,
         });
         this.authTimestamp = Date.now();
         const body = await response.json();
@@ -56,21 +40,23 @@ class BetterRelysiaSDK {
             return false;
         }
         this.authToken = body.data.token;
+        this.getHeaders.set('authToken', this.authToken);
+        this.postHeaders.set('authToken', this.authToken);
     }
     /**
      * Gets the user profile from Relysia.
      * @public
-     * @returns {Promise<RelysiaUserProfileData | 'Reached Max Attempts'>}
+     * @returns {Promise<RelysiaUserProfileData>}
      */
     async getUserProfile() {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         const response = await fetch('https://api.relysia.com/v1/user', {
             method: 'GET',
-            headers: new Headers({ accept: 'application/json', authToken: this.authToken }),
+            headers: this.getHeaders,
         });
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -95,19 +81,19 @@ class BetterRelysiaSDK {
     }
     /**
      * @private
-     * @returns {Promise<RelysiaUserProfileData | 'Reached Max Attempts'>}
+     * @returns {Promise<RelysiaUserProfileData>}
      */
     async getUserProfileRepeat() {
         const response = await fetch('https://api.relysia.com/v1/user', {
             method: 'GET',
-            headers: new Headers({ accept: 'application/json', authToken: this.authToken }),
+            headers: this.getHeaders,
         });
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return await this.getUserProfileRepeat();
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         let body = await response.json();
         //@ts-expect-error
@@ -131,19 +117,16 @@ class BetterRelysiaSDK {
      * @public
      * @param {string} walletTitle The title of the wallet.
      * @param {CreateWalletOpt} [opt]
-     * @returns {Promise<"Reached Max Attempts" | "Invalid Mnemonic!" | "Paymail in incorrect format!" | "Invalid wallet type!" | "Not a URL!" | RelysiaCreateWallet>}
+     * @returns {Promise<RelysiaCreateWallet>}
      */
     async createWallet(walletTitle, opt) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-            walletTitle,
-        });
+        const headers = this.getHeaders;
+        headers.set('walletTitle', walletTitle);
         if (opt?.mnemonicPhrase !== undefined) {
             headers.set('mnemonicPhrase', opt.mnemonicPhrase);
         }
@@ -165,16 +148,16 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === 'invalid mnemonic phrase') {
-            return 'Invalid Mnemonic!';
+            throw new Error('Invalid Mnemonic');
         }
         else if (body.data.msg === "please write correct paymail, 'example@relysia.com'") {
-            return 'Paymail in incorrect format!';
+            throw new Error('Paymail in incorrect format');
         }
         else if (body.data.msg === 'we support only "STANDARD or ESCROW" wallet type !') {
-            return 'Invalid wallet type!';
+            throw new Error('Invalid wallet type');
         }
         else if (body.data.msg === 'headers/walletlogo must match format "uri"') {
-            return 'Not a URL!';
+            throw new Error('Not a URL');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -186,14 +169,11 @@ class BetterRelysiaSDK {
      * @private
      * @param {string} walletTitle
      * @param {CreateWalletOpt} [opt]
-     * @returns {Promise<"Reached Max Attempts" | "Invalid Mnemonic!" | "Paymail in incorrect format!" | "Invalid wallet type!" | "Not a URL!" | RelysiaCreateWallet>}
+     * @returns {Promise<RelysiaCreateWallet>}
      */
     async createWalletRepeat(walletTitle, opt) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-            walletTitle,
-        });
+        const headers = this.getHeaders;
+        headers.set('walletTitle', walletTitle);
         if (opt?.mnemonicPhrase !== undefined) {
             headers.set('mnemonicPhrase', opt.mnemonicPhrase);
         }
@@ -215,23 +195,23 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === 'invalid mnemonic phrase') {
-            return 'Invalid Mnemonic!';
+            throw new Error('Invalid Mnemonic');
         }
         else if (body.data.msg === "please write correct paymail, 'example@relysia.com'") {
-            return 'Paymail in incorrect format!';
+            throw new Error('Paymail in incorrect format');
         }
         else if (body.data.msg === 'we support only "STANDARD or ESCROW" wallet type !') {
-            return 'Invalid wallet type!';
+            throw new Error('Invalid wallet type');
         }
         else if (body.data.msg === 'headers/walletlogo must match format "uri"') {
-            return 'Not a URL!';
+            throw new Error('Not a URL');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return await this.createWalletRepeat(walletTitle, opt);
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         return body.data;
     }
@@ -239,18 +219,15 @@ class BetterRelysiaSDK {
      * Get an address and the paymail for a specified wallet.
      * @public
      * @param {string} [walletId] The Wallet ID that you wish to get the address for. Defaults to default wallet if not specified
-     * @returns {Promise<RelysiaGetAddress | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     * @returns {Promise<RelysiaGetAddress>}
      */
     async getAddress(walletId) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
         }
@@ -260,7 +237,7 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -271,13 +248,10 @@ class BetterRelysiaSDK {
     /**
      * @private
      * @param {string} [walletId]
-     * @returns {Promise<RelysiaGetAddress | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     * @returns {Promise<RelysiaGetAddress>}
      */
     async getAddressRepeat(walletId) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
         }
@@ -287,14 +261,14 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retries > 0) {
                 return await this.getAddressRepeat(walletId);
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         return body.data;
     }
@@ -302,18 +276,15 @@ class BetterRelysiaSDK {
      * Get all addresses related to your wallet.
      * @public
      * @param {string} [walletId] Wallet ID of the wallet you want to use. Leave blank to use default wallet
-     * @returns {Promise<RelysiaGetAllAddress | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     * @returns {Promise<RelysiaGetAllAddress>}
      */
     async getAllAddressess(walletId) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
         }
@@ -323,7 +294,7 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -334,13 +305,10 @@ class BetterRelysiaSDK {
     /**
      * @private
      * @param {string} [walletId]
-     * @returns {Promise<RelysiaGetAllAddress | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     * @returns {Promise<RelysiaGetAllAddress>}
      */
     async getAllAddressessRepeat(walletId) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
         }
@@ -350,14 +318,14 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return await this.getAllAddressessRepeat(walletId);
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         return body.data;
     }
@@ -366,19 +334,16 @@ class BetterRelysiaSDK {
      * @public
      * @param {string} tokenId The token id of the token you wish to query.
      * @param {number} [nextPageToken] The next page token given by a previous response.
-     * @returns {Promise<RelysiaLeaderboard | 'Reached Max Attempts' | 'Invalid Token ID!' | 'No entries in leaderboard'>}
+     * @returns {Promise<RelysiaLeaderboard>}
      */
     async leaderboard(tokenId, nextPageToken) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-            tokenId,
-        });
+        const headers = this.getHeaders;
+        headers.set('tokenId', tokenId);
         if (nextPageToken !== undefined) {
             headers.set('nextPageToken', nextPageToken.toString());
         }
@@ -388,10 +353,10 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === 'invalid tokenId or sn !') {
-            return 'Invalid Token ID!';
+            throw new Error('Invalid Token ID');
         }
         if (body.data.leaderboard.length === 0) {
-            return 'No entries in leaderboard';
+            throw new Error('No entries in leaderboard');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -403,14 +368,11 @@ class BetterRelysiaSDK {
      * @private
      * @param {string} tokenId
      * @param {number} [nextPageToken]
-     * @returns {Promise<RelysiaLeaderboard | 'Reached Max Attempts' | 'Invalid Token ID!' | 'No entries in leaderboard'>}
+     * @returns {Promise<RelysiaLeaderboard>}
      */
     async leaderboardRepeat(tokenId, nextPageToken) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-            tokenId,
-        });
+        const headers = this.getHeaders;
+        headers.set('tokenId', tokenId);
         if (nextPageToken !== undefined) {
             headers.set('nextPageToken', nextPageToken.toString());
         }
@@ -420,35 +382,32 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === 'invalid tokenId or sn !') {
-            return 'Invalid Token ID!';
+            throw new Error('Invalid Token ID');
         }
         if (body.data.leaderboard.length === 0) {
-            return 'No entries in leaderboard';
+            throw new Error('No entries in leaderboard');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return await this.leaderboardRepeat(tokenId, nextPageToken);
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         return body.data;
     }
     /**
      * Gets all wallets in the Relysia account.
      * @public
-     * @returns {Promise<RelysiaWallets | 'Reached Max Attempts'>}
+     * @returns {Promise<RelysiaWallets>}
      */
     async wallets() {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         const response = await fetch('https://api.relysia.com/v1/wallets', {
             method: 'GET',
             headers,
@@ -462,13 +421,10 @@ class BetterRelysiaSDK {
     }
     /**
      * @private
-     * @returns {Promise<RelysiaWallets | 'Reached Max Attempts'>}
+     * @returns {Promise<RelysiaWallets>}
      */
     async walletsRepeat() {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         const response = await fetch('https://api.relysia.com/v1/wallets', {
             method: 'GET',
             headers,
@@ -478,7 +434,7 @@ class BetterRelysiaSDK {
             if (this.retriesLeft > 0) {
                 return await this.walletsRepeat();
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         const body = await response.json();
         return body.data;
@@ -486,18 +442,15 @@ class BetterRelysiaSDK {
     /** Gets the mnemonic of a wallet
      * @public
      * @param {string} [walletId] Wallet ID of the wallet you want to use. Leave blank to use default wallet
-     * @returns {Promise<RelysiaMnemonic | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     * @returns {Promise<RelysiaMnemonic>}
      */
     async mnemonic(walletId) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
         }
@@ -507,7 +460,7 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -518,13 +471,10 @@ class BetterRelysiaSDK {
     /**
      * @private
      * @param {string} [walletId]
-     * @returns {Promise<RelysiaMnemonic | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     * @returns {Promise<RelysiaMnemonic>}
      */
     async mnemonicRepeat(walletId) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (walletId !== undefined) {
             headers.set('walletId', walletId);
         }
@@ -534,14 +484,14 @@ class BetterRelysiaSDK {
         });
         const body = await response.json();
         if (body.data.msg === `Error while syncing with walletId: ${walletId}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return await this.mnemonicRepeat(walletId);
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         return body.data;
     }
@@ -549,18 +499,15 @@ class BetterRelysiaSDK {
      * Get the balance of the specified wallet
      * @public
      * @param {BalanceOpts} [opts] Optional options to pass to the endpoint
-     * @returns {Promise<RelysiaBalance | 'Reached Max Attempts' | 'Non-existant wallet' | 'Invalid nextPageToken' | 'Invalid Currency'>}
+     * @returns {Promise<RelysiaBalance>}
      */
     async balance(opts) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (opts !== undefined) {
             if (opts.nextPageToken !== undefined) {
                 headers.set('nextPageToken', opts.nextPageToken);
@@ -591,13 +538,13 @@ class BetterRelysiaSDK {
         const body = await response.json();
         if (opts !== undefined) {
             if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
-                return 'Non-existant wallet';
+                throw new Error('Non-existant wallet');
             }
             if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
-                return 'Invalid nextPageToken';
+                throw new Error('Invalid nextPageToken');
             }
             if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
-                return 'Invalid Currency';
+                throw new Error('Invalid Currency');
             }
         }
         if (response.status !== 200) {
@@ -609,13 +556,10 @@ class BetterRelysiaSDK {
     /**
      * @private
      * @param {BalanceOpts} [opts]
-     * @returns {Promise<RelysiaBalance | 'Reached Max Attempts' | 'Non-existant wallet' | 'Invalid nextPageToken' | 'Invalid Currency'>}
+     * @returns {Promise<RelysiaBalance>}
      */
     async balanceRepeat(opts) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (opts !== undefined) {
             if (opts.nextPageToken !== undefined) {
                 headers.set('nextPageToken', opts.nextPageToken);
@@ -646,13 +590,13 @@ class BetterRelysiaSDK {
         const body = await response.json();
         if (opts !== undefined) {
             if (body.data.msg === `Error while syncing with walletId: ${opts.walletId}`) {
-                return 'Non-existant wallet';
+                throw new Error('Non-existant wallet');
             }
             if (body.data.msg === 'Called reply with an invalid status code: 5107200') {
-                return 'Invalid nextPageToken';
+                throw new Error('Invalid nextPageToken');
             }
             if (body.data.msg === `we are not supporting ${opts.currency.toUpperCase()} as a currency`) {
-                return 'Invalid Currency';
+                throw new Error('Invalid Currency');
             }
         }
         if (response.status !== 200) {
@@ -660,7 +604,7 @@ class BetterRelysiaSDK {
             if (this.retriesLeft > 0) {
                 return this.balanceRepeat(opts);
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         return body.data;
     }
@@ -668,18 +612,15 @@ class BetterRelysiaSDK {
      * Get wallet history
      * @public
      * @param {HistoryOpts} [opts] Optional options to pass
-     * @returns {Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     * @returns {Promise<RelysiaHistory>}
      */
     async history(opts) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (opts !== undefined) {
             if (opts.limit !== undefined) {
                 headers.set('limit', opts.limit);
@@ -707,7 +648,7 @@ class BetterRelysiaSDK {
         const body = await response.json();
         if (opts !== undefined) {
             if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-                return 'Non-existant wallet';
+                throw new Error('Non-existant wallet');
             }
         }
         if (response.status !== 200) {
@@ -719,13 +660,10 @@ class BetterRelysiaSDK {
     /**
      * @private
      * @param {HistoryOpts} [opts]
-     * @returns {Promise<RelysiaHistory | 'Reached Max Attempts' | 'Non-existant wallet'>}
+     * @returns {Promise<RelysiaHistory>}
      */
     async historyRepeat(opts) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.getHeaders;
         if (opts !== undefined) {
             if (opts.limit !== undefined) {
                 headers.set('limit', opts.limit);
@@ -753,7 +691,7 @@ class BetterRelysiaSDK {
         const body = await response.json();
         if (opts !== undefined) {
             if (body.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-                return 'Non-existant wallet';
+                throw new Error('Non-existant wallet');
             }
         }
         if (response.status !== 200) {
@@ -761,7 +699,7 @@ class BetterRelysiaSDK {
             if (this.retriesLeft > 0) {
                 return this.historyRepeat(opts);
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         return body.data;
     }
@@ -776,12 +714,9 @@ class BetterRelysiaSDK {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.postHeaders;
         if (walletID !== undefined) {
             headers.set('walletID', walletID);
         }
@@ -793,10 +728,10 @@ class BetterRelysiaSDK {
         });
         const res = await response.json();
         if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (res.data.msg === 'Not a valid private key value !') {
-            return 'Not a valid private key';
+            throw new Error('Not a valid private key');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -808,13 +743,10 @@ class BetterRelysiaSDK {
      * @private
      * @param {string} privateKey
      * @param {string} [walletID]
-     * @returns {Promise<RelysiaSweep | 'Reached Max Attempts' | 'Non-existant wallet' | 'Not a valid private key'>}
+     * @returns {Promise<RelysiaSweep>}
      */
     async sweepRepeat(privateKey, walletID) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.postHeaders;
         if (walletID !== undefined) {
             headers.set('walletID', walletID);
         }
@@ -826,16 +758,17 @@ class BetterRelysiaSDK {
         });
         const res = await response.json();
         if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (res.data.msg === 'Not a valid private key value !') {
-            return 'Not a valid private key';
+            throw new Error('Not a valid private key');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return this.sweepRepeat(privateKey, walletID);
             }
+            throw new Error('Reached Max Attempts');
         }
         return res.data;
     }
@@ -843,18 +776,15 @@ class BetterRelysiaSDK {
      * Create a raw transaction
      * @public
      * @param {RawTxOpts} opts Function Options
-     * @returns {Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     * @returns {Promise<RelysiaRawTx>}
      */
     async rawTx(opts) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.postHeaders;
         if (opts.walletID !== undefined) {
             headers.set('walletID', opts.walletID);
         }
@@ -866,13 +796,13 @@ class BetterRelysiaSDK {
         });
         const res = await response.json();
         if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (res.data.msg === 'Insufficient Balance') {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (res.statusCode !== 200) {
             this.retriesLeft--;
@@ -883,13 +813,10 @@ class BetterRelysiaSDK {
     /**
      * @private
      * @param {RawTxOpts} opts
-     * @returns {Promise<RelysiaRawTx | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     * @returns {Promise<RelysiaRawTx>}
      */
     async rawTxRepeat(opts) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.postHeaders;
         if (opts.walletID !== undefined) {
             headers.set('walletID', opts.walletID);
         }
@@ -901,20 +828,20 @@ class BetterRelysiaSDK {
         });
         const res = await response.json();
         if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (res.data.msg === 'Insufficient Balance') {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (res.statusCode !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return this.rawTxRepeat(opts);
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         return res.data;
     }
@@ -924,18 +851,15 @@ class BetterRelysiaSDK {
      * @param {string} asm The custom bitcoin script to be added as an output
      * @param {number} amount The amount of BSV to lock in the script
      * @param {string} [walletID] The wallet you want to use
-     * @returns {Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     * @returns {Promise<RelysiaAsm>}
      */
     async asm(asm, amount, walletID) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.postHeaders;
         if (walletID !== undefined) {
             headers.set('walletID', walletID);
         }
@@ -954,10 +878,10 @@ class BetterRelysiaSDK {
         });
         const res = await response.json();
         if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (res.data.msg === 'Insufficient Balance') {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
@@ -970,13 +894,10 @@ class BetterRelysiaSDK {
      * @param {string} asm
      * @param {number} amount
      * @param {string} [walletID]
-     * @returns {Promise<RelysiaAsm | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     * @returns {Promise<RelysiaAsm>}
      */
     async asmRepeat(asm, amount, walletID) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.postHeaders;
         if (walletID !== undefined) {
             headers.set('walletID', walletID);
         }
@@ -995,17 +916,17 @@ class BetterRelysiaSDK {
         });
         const res = await response.json();
         if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (res.data.msg === 'Insufficient Balance') {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return this.asmRepeat(asm, amount, walletID);
             }
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
         return res.data;
     }
@@ -1015,18 +936,15 @@ class BetterRelysiaSDK {
      * @param {string} tokenId The token you wish to redeem
      * @param {number} amount How much you wish to redeem
      * @param {RedeemOpts} [opts] Additional options
-     * @returns {Promise<RelysiaRedeem | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     * @returns {Promise<RelysiaRedeem>}
      */
     async redeemToken(tokenId, amount, opts) {
         this.retriesLeft = this.retries;
         const verifyCheck = await this.checkAuth();
         if (verifyCheck === false) {
-            return 'Reached Max Attempts';
+            throw new Error('Reached Max Attempts');
         }
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.postHeaders;
         let body;
         if (opts !== undefined) {
             if (opts.walletID !== undefined) {
@@ -1059,13 +977,13 @@ class BetterRelysiaSDK {
         });
         const res = await response.json();
         if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (res.data.msg === 'Insufficient Balance') {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (response.status !== undefined) {
             this.retriesLeft--;
@@ -1078,13 +996,10 @@ class BetterRelysiaSDK {
      * @param {string} tokenId
      * @param {number} amount
      * @param {RedeemOpts} [opts]
-     * @returns {Promise<RelysiaRedeem | 'Reached Max Attempts' | 'Non-existant wallet' | 'Insufficient Balance'>}
+     * @returns {Promise<RelysiaRedeem>}
      */
     async redeemTokenRepeat(tokenId, amount, opts) {
-        const headers = new Headers({
-            accept: 'application/json',
-            authToken: this.authToken,
-        });
+        const headers = this.postHeaders;
         let body;
         if (opts !== undefined) {
             if (opts.walletID !== undefined) {
@@ -1117,19 +1032,20 @@ class BetterRelysiaSDK {
         });
         const res = await response.json();
         if (res.data.msg === `Error while syncing with walletId: ${opts.walletID}`) {
-            return 'Non-existant wallet';
+            throw new Error('Non-existant wallet');
         }
         if (res.data.msg === 'Insufficient Balance') {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
-            return 'Insufficient Balance';
+            throw new Error('Insufficient Balance');
         }
         if (response.status !== undefined) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return this.redeemTokenRepeat(tokenId, amount, opts);
             }
+            throw new Error('Reach Max Attempts');
         }
         return res.data;
     }
@@ -1140,7 +1056,7 @@ exports.BetterRelysiaSDK = BetterRelysiaSDK;
  * @param {string} email Email address of the Relysia account
  * @param {string} password Password of the Relysia account
  * @param {number} [retries=20] Number of retries that requests should do
- * @returns {Promise<'Incorrect Password' | BetterRelysiaSDK | 'Account doesn\'t exist'>}
+ * @returns {Promise<BetterRelysiaSDK>}
  */
 async function authenticate(email, password, retries = 20) {
     const response = await fetch('https://api.relysia.com/v1/auth', {
@@ -1149,19 +1065,19 @@ async function authenticate(email, password, retries = 20) {
             email,
             password,
         }),
-        headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json', }),
+        headers: postHeaders,
     });
     let toReturn = new BetterRelysiaSDK();
     toReturn.authTimestamp = Date.now();
     const body = await response.json();
     if (body.data.msg === 'INVALID_PASSWORD') {
-        return 'Incorrect Password';
+        throw new Error('Incorrect Password');
     }
     if (body.data.msg === 'EMAIL_NOT_FOUND') {
-        return 'Account doesn\'t exist';
+        throw new Error('Account doesn\'t exist');
     }
     if (body.data.msg === "body/email must match format \"email\"") {
-        return 'Account doesn\'t exist';
+        throw new Error('Account doesn\'t exist');
     }
     toReturn.email = email;
     toReturn.password = password;
@@ -1172,13 +1088,12 @@ async function authenticate(email, password, retries = 20) {
     toReturn.authToken = body.data.token;
     return toReturn;
 }
-exports.authenticate = authenticate;
 /**
  * @param {string} email
  * @param {string} password
  * @param {number} retries
  * @param {number} retriesLeft
- * @returns {Promise<'Incorrect Password' | BetterRelysiaSDK | 'Account doesn\'t exist'>}
+ * @returns {Promise<BetterRelysiaSDK>}
  */
 async function authenticateAfterFail(email, password, retries, retriesLeft) {
     const response = await fetch('https://api.relysia.com/v1/auth', {
@@ -1187,19 +1102,19 @@ async function authenticateAfterFail(email, password, retries, retriesLeft) {
             email,
             password,
         }),
-        headers: new Headers({ accept: 'application/json', 'Content-Type': 'application/json', }),
+        headers: postHeaders,
     });
     let toReturn = new BetterRelysiaSDK();
     toReturn.authTimestamp = Date.now();
     const body = await response.json();
     if (body.data.msg === 'INVALID_PASSWORD') {
-        return 'Incorrect Password';
+        throw new Error('Incorrect Password');
     }
     if (body.data.msg === 'EMAIL_NOT_FOUND') {
-        return 'Account doesn\'t exist';
+        throw new Error('Account doesn\'t exist');
     }
     if (body.data.msg === "body/email must match format \"email\"") {
-        return 'Account doesn\'t exist';
+        throw new Error('Account doesn\'t exist');
     }
     toReturn.email = email;
     toReturn.password = password;
@@ -1209,9 +1124,13 @@ async function authenticateAfterFail(email, password, retries, retriesLeft) {
             return await authenticateAfterFail(email, password, retries, retriesLeft - 1);
         }
         else {
-            return undefined;
+            throw new Error('Reached Max Attempts');
         }
     }
     toReturn.authToken = body.data.token;
+    this.getHeaders.set('authToken', this.authToken);
+    this.postHeaders.set('authToken', this.authToken);
     return toReturn;
 }
+const getHeaders = new Headers({ accept: 'application/json' });
+const postHeaders = new Headers({ accept: 'application/json', 'Content-Type': 'application/json', });
