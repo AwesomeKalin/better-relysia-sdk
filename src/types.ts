@@ -266,3 +266,40 @@ export type RelysiaRedeem = {
     txIds: string[];
     errors: any[];
 };
+
+/**
+ * @param tokenId The id of the token you are offering. Omit to offer BSV.
+ * @param amount The amount of tokenId or BSV you are offering.
+ * @param wantedAmount The amount of wantedTokenId or BSV you want.
+ * @param sn Serial number of the tokenId. Must include tokenId if specified.
+ * @param wantedTokenId The id of the token you want. Omit to want BSV. Cannot omit if tokenId is ommited.
+ * @param wantedSn Serial number of wantedTokenId. Must include wantedTokenId if specified.
+ */
+export type AtomicSwapOfferOpts = {
+    tokenId?: string;
+    amount: number;
+    wantedAmount: number
+    sn?: number;
+    wantedTokenId?: string;
+    wantedSn?: number;
+};
+
+export type RelysiaAtomicSwapOffer = {
+    status: status;
+    msg: string;
+    contents: string[];
+};
+
+/**
+ * @param swapHex Hex of the atomic swap
+ */
+export type AtomicSwapAcceptOpts = {
+    swapHex: string;
+}[];
+
+export type RelysiaAtomicSwapAccept = {
+    status: status;
+    msg: string;
+    txIds: string[];
+    errors: string[];
+};

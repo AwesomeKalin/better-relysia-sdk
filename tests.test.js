@@ -111,3 +111,9 @@ test('token redemption', async () => {
     // TODO Test Token Redemption
     return;
 });
+
+test('test atomic swap', async () => {
+    return await BetterRelysiaSDK.authenticate('satoshiasdsa@gmail.com', '4m4z1ngT3ch').then(data => {
+        // TODO Test Atomic Swaps
+    });
+});
