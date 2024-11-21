@@ -1,5 +1,5 @@
 "use strict";
-/** @import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from './types' */
+/** @import { AtomicSwapAcceptOpts, AtomicSwapOfferOpts, BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, RelysiaAtomicSwapOffer, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from './types' */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BetterRelysiaSDK = void 0;
 exports.authenticate = authenticate;
@@ -985,7 +985,7 @@ class BetterRelysiaSDK {
         if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
             throw new Error('Insufficient Balance');
         }
-        if (response.status !== undefined) {
+        if (response.status !== 200) {
             this.retriesLeft--;
             return this.redeemTokenRepeat(tokenId, amount, opts);
         }
@@ -1040,12 +1040,256 @@ class BetterRelysiaSDK {
         if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
             throw new Error('Insufficient Balance');
         }
-        if (response.status !== undefined) {
+        if (response.status !== 200) {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return this.redeemTokenRepeat(tokenId, amount, opts);
             }
-            throw new Error('Reach Max Attempts');
+            throw new Error('Reached Max Attempts');
+        }
+        return res.data;
+    }
+    /**
+     * Create an atomic swap offer
+     * @public
+     * @param {AtomicSwapOfferOpts[]} opts Function options
+     * @param {string} walletId The wallet you want to use
+     * @returns {Promise<RelysiaAtomicSwapOffer>}
+     */
+    async atomicSwapOffer(opts, walletId) {
+        this.retriesLeft = this.retries;
+        const verifyCheck = await this.checkAuth();
+        if (verifyCheck === false) {
+            throw new Error('Reached Max Attempts');
+        }
+        const headers = this.postHeaders;
+        if (opts.length === 0) {
+            throw new Error('No options provided');
+        }
+        for (var i = 0; i < opts.length; i++) {
+            if (opts[i].tokenId === undefined && opts[i].wantedTokenId === undefined)
+                throw new Error('Cannot swap BSV for BSV');
+            if ((opts[i].sn !== undefined && opts[i].tokenId === undefined) || (opts[i].wantedSn !== undefined && opts[i].wantedTokenId === undefined))
+                throw new Error('Cannot pass serial number without passing token id');
+            if (opts[i].amount === 0 || opts[i].wantedAmount === 0)
+                throw new Error('Cannot set amount to 0');
+        }
+        if (walletId !== undefined) {
+            headers.set('walletID', walletId);
+        }
+        let body = JSON.stringify({ dataArray: opts });
+        const response = await fetch('https://api.relysia.com/v1/offer', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            throw new Error('Non-existant wallet');
+        }
+        if (res.data.msg === 'Insufficient Balance') {
+            throw new Error('Insufficient Balance');
+        }
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            throw new Error('Insufficient Balance');
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.atomicSwapOfferRepeat(opts, walletId);
+        }
+        return res.data;
+    }
+    /**
+     * @private
+     * @param {AtomicSwapOfferOpts[]} opts
+     * @param {string} [walletId]
+     * @returns {Promise<RelysiaAtomicSwapOffer>}
+     */
+    async atomicSwapOfferRepeat(opts, walletId) {
+        const headers = this.postHeaders;
+        if (opts.length === 0) {
+            throw new Error('No options provided');
+        }
+        for (var i = 0; i < opts.length; i++) {
+            if (opts[i].tokenId === undefined && opts[i].wantedTokenId === undefined)
+                throw new Error('Cannot swap BSV for BSV');
+            if ((opts[i].sn !== undefined && opts[i].tokenId === undefined) || (opts[i].wantedSn !== undefined && opts[i].wantedTokenId === undefined))
+                throw new Error('Cannot pass serial number without passing token id');
+            if (opts[i].amount === 0 || opts[i].wantedAmount === 0)
+                throw new Error('Cannot set amount to 0');
+        }
+        if (walletId !== undefined) {
+            headers.set('walletID', walletId);
+        }
+        let body;
+        body = JSON.stringify({ dataArray: opts });
+        const response = await fetch('https://api.relysia.com/v1/offer', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            throw new Error('Non-existant wallet');
+        }
+        if (res.data.msg === 'Insufficient Balance') {
+            throw new Error('Insufficient Balance');
+        }
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            throw new Error('Insufficient Balance');
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.atomicSwapOfferRepeat(opts, walletId);
+            }
+            throw new Error('Reached Max Attempts');
+        }
+        return res.data;
+    }
+    /**
+     * Accept an atomic swap
+     * @public
+     * @param {AtomicSwapAcceptOpts} opts Function Options
+     * @param {string} [walletId] The wallet you want to use
+     * @returns {Promise<RelysiaAtomicSwapAccept>}
+     */
+    async atomicSwapAccept(opts, walletId) {
+        this.retriesLeft = this.retries;
+        const verifyCheck = await this.checkAuth();
+        if (verifyCheck === false) {
+            throw new Error('Reached Max Attempts');
+        }
+        const headers = this.postHeaders;
+        if (opts.length === 0) {
+            throw new Error('No options provided');
+        }
+        if (walletId !== undefined) {
+            headers.set('walletID', walletId);
+        }
+        let body = JSON.stringify({ dataArray: opts });
+        const response = await fetch('https://api.relysia.com/v1/swap', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            throw new Error('Non-existant wallet');
+        }
+        if (res.data.msg === 'Insufficient Balance') {
+            throw new Error('Insufficient Balance');
+        }
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            throw new Error('Insufficient Balance');
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.atomicSwapAcceptRepeat(opts, walletId);
+        }
+        return res.data;
+    }
+    /**
+     * @private
+     * @param {AtomicSwapAcceptOpts} opts
+     * @param {string} [walletId]
+     * @returns {Promise<RelysiaAtomicSwapAccept>}
+     */
+    async atomicSwapAcceptRepeat(opts, walletId) {
+        this.retriesLeft = this.retries;
+        const verifyCheck = await this.checkAuth();
+        if (verifyCheck === false) {
+            throw new Error('Reached Max Attempts');
+        }
+        const headers = this.postHeaders;
+        if (opts.length === 0) {
+            throw new Error('No options provided');
+        }
+        if (walletId !== undefined) {
+            headers.set('walletID', walletId);
+        }
+        let body = JSON.stringify({ dataArray: opts });
+        const response = await fetch('https://api.relysia.com/v1/swap', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === `Error while syncing with walletId: ${walletId}`) {
+            throw new Error('Non-existant wallet');
+        }
+        if (res.data.msg === 'Insufficient Balance') {
+            throw new Error('Insufficient Balance');
+        }
+        if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+            throw new Error('Insufficient Balance');
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.atomicSwapAccept(opts, walletId);
+            }
+            throw new Error('Reached Max Attempts');
+        }
+        return res.data;
+    }
+    /**
+     * Allows you to inspect an atomic swap to check the validity of it
+     * @public
+     * @param {AtomicSwapAcceptOpts} opts The function options
+     * @param {string} [walletId] The wallet you wish to use
+     * @returns {Promise<any>}
+     */
+    async inspectAtomicSwap(opts, walletId) {
+        this.retriesLeft = this.retries;
+        const verifyCheck = await this.checkAuth();
+        if (verifyCheck === false) {
+            throw new Error('Reached Max Attempts');
+        }
+        const headers = this.postHeaders;
+        if (opts.length === 0) {
+            throw new Error('No options provided');
+        }
+        let body = JSON.stringify({ dataArray: opts });
+        const response = await fetch('https://api.relysia.com/v1/inspect', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (res.data.msg === 'Called reply with an invalid status code: ERR_OUT_OF_RANGE') {
+            throw new Error('Invalid Atomic Swap Offer');
+        }
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.inspectAtomicSwapRepeat(opts, walletId);
+        }
+        return res.data;
+    }
+    /**
+     * @private
+     * @param {AtomicSwapAcceptOpts} opts
+     * @param {string} [walletId]
+     * @returns {any}
+     */
+    async inspectAtomicSwapRepeat(opts, walletId) {
+        const headers = this.postHeaders;
+        if (opts.length === 0) {
+            throw new Error('No options provided');
+        }
+        let body = JSON.stringify({ dataArray: opts });
+        const response = await fetch('https://api.relysia.com/v1/inspect', {
+            method: 'POST',
+            headers,
+            body,
+        });
+        const res = await response.json();
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.inspectAtomicSwapRepeat(opts, walletId);
+            }
+            throw new Error('Reached Max Attempts');
         }
         return res.data;
     }

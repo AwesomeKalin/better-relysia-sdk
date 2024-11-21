@@ -303,3 +303,38 @@ export type RelysiaAtomicSwapAccept = {
     txIds: string[];
     errors: string[];
 };
+
+export type RelysiaAtomicSwapInspect = {
+    status: status;
+    msg: string;
+    offerDetails: Array<{
+        tokenOwnerAddress: string;
+        tokenCreatorAddress: string;
+        tokenSatoshis: number;
+        wantedSatoshis: number;
+        tokenImage: string;
+        serialNumber: number;
+        splittable: boolean;
+        contractTxid: string;
+        tokenId: string;
+        symbol: string;
+        tokenSupply: number;
+        verified: boolean;
+        tokenName: string;
+        tokenDescription?: string;
+    } | {
+        tokenOwnerAddress: string;
+        tokenCreatorAddress: string;
+        tokenSatoshis: number;
+        wantedSatoshis: number;
+        tokenId: string;
+        symbol: string;
+        sn: number;
+        splittable: boolean;
+        tokenImage: string;
+        contractTxid: string;
+        tokenName: string;
+        tokenDescription?: string;
+        verified: boolean;
+    }>;
+};

@@ -1,5 +1,5 @@
-/** @import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from './types' */
-import { BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserProfileData, RelysiaWallets } from "./types";
+/** @import { AtomicSwapAcceptOpts, AtomicSwapOfferOpts, BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, RelysiaAtomicSwapOffer, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from './types' */
+import { AtomicSwapAcceptOpts, AtomicSwapOfferOpts, BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaAtomicSwapAccept, RelysiaAtomicSwapOffer, RelysiaBalance, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserProfileData, RelysiaWallets } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -194,6 +194,51 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<RelysiaRedeem>}
      */
     private redeemTokenRepeat;
+    /**
+     * Create an atomic swap offer
+     * @public
+     * @param {AtomicSwapOfferOpts[]} opts Function options
+     * @param {string} walletId The wallet you want to use
+     * @returns {Promise<RelysiaAtomicSwapOffer>}
+     */
+    atomicSwapOffer(opts: AtomicSwapOfferOpts[], walletId: string): Promise<RelysiaAtomicSwapOffer>;
+    /**
+     * @private
+     * @param {AtomicSwapOfferOpts[]} opts
+     * @param {string} [walletId]
+     * @returns {Promise<RelysiaAtomicSwapOffer>}
+     */
+    private atomicSwapOfferRepeat;
+    /**
+     * Accept an atomic swap
+     * @public
+     * @param {AtomicSwapAcceptOpts} opts Function Options
+     * @param {string} [walletId] The wallet you want to use
+     * @returns {Promise<RelysiaAtomicSwapAccept>}
+     */
+    atomicSwapAccept(opts: AtomicSwapAcceptOpts, walletId?: string): Promise<RelysiaAtomicSwapAccept>;
+    /**
+     * @private
+     * @param {AtomicSwapAcceptOpts} opts
+     * @param {string} [walletId]
+     * @returns {Promise<RelysiaAtomicSwapAccept>}
+     */
+    private atomicSwapAcceptRepeat;
+    /**
+     * Allows you to inspect an atomic swap to check the validity of it
+     * @public
+     * @param {AtomicSwapAcceptOpts} opts The function options
+     * @param {string} [walletId] The wallet you wish to use
+     * @returns {Promise<any>}
+     */
+    inspectAtomicSwap(opts: AtomicSwapAcceptOpts, walletId?: string): Promise<any>;
+    /**
+     * @private
+     * @param {AtomicSwapAcceptOpts} opts
+     * @param {string} [walletId]
+     * @returns {any}
+     */
+    private inspectAtomicSwapRepeat;
 }
 /**
     * Authenticate with the Relysia API. Does not support OAuth.

@@ -125,3 +125,9 @@ test('test atomic swap', async () => {
         // TODO Test Atomic Swaps
     });
 });
+
+test('test atomic swap inspect', async () => {
+    return await BetterRelysiaSDK.authenticate('satoshiasdsa@gmail.com', '4m4z1ngT3ch').then(data => {
+        // TODO Test Atomic Swap Inspect
+    });
+})

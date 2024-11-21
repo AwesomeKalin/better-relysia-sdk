@@ -151,13 +151,7 @@ export type RelysiaGetAllAddress = {
  * @typedef {Object} RelysiaLeaderboard
  * @property {status} status
  * @property {string} msg
- * @property {{
-        paymail?: string;
-        totalAmount: number;
-        uid: string;
-        rank: number;
-        displayName?: string;
-    }[]} leaderboard
+ * @property {{        paymail?: string;        totalAmount: number;        uid: string;        rank: number;        displayName?: string;    }[]} leaderboard
  * @property {number | null} nextPageToken
  */
 export type RelysiaLeaderboard = {
@@ -176,11 +170,7 @@ export type RelysiaLeaderboard = {
  * @typedef {Object} RelysiaWallets
  * @property {status} status
  * @property {string} msg
- * @property {{
-        walletId: string;
-        walletTitle: string;
-        walletLogo: string | null;
-    }[]} wallets
+ * @property {{        walletId: string;        walletTitle: string;        walletLogo: string | null;    }[]} wallets
  */
 export type RelysiaWallets = {
     status: status;
@@ -209,27 +199,7 @@ export type RelysiaMnemonic = {
  * @property {Object} totalBalance
  * @property {string} totalBalance.currency
  * @property {number} totalBalance.balance
- * @property {{
-        protocol: "BSV";
-        balance: number;
-    }|{
-        Id: string;
-        protocol: string;
-        tokenId: string;
-        splittable: boolean;
-        splitable: boolean;
-        verified: boolean;
-        address: string;
-        satsPerToken: number;
-        symbol: string;
-        redeemAddr: string;
-        image: string;
-        amount: number;
-        supply: number;
-        decimals: number;
-        sn: number[];
-        name: string;
-    }[]} coins
+ * @property {{        protocol: "BSV";        balance: number;    }|{        Id: string;        protocol: string;        tokenId: string;        splittable: boolean;        splitable: boolean;        verified: boolean;        address: string;        satsPerToken: number;        symbol: string;        redeemAddr: string;        image: string;        amount: number;        supply: number;        decimals: number;        sn: number[];        name: string;    }[]} coins
  * @property {Object} meta
  * @property {number} meta.nextPageToken
  */
@@ -317,28 +287,7 @@ export type HistoryOpts = {
  * @typedef {Object} RelysiaHistory
  * @property {status} status
  * @property {string} msg
- * @property {{
-        to: {
-            amount: number;
-            image: string;
-            protocol: string;
-            tokenId: string;
-            sn: number;
-            to: string;
-            name: string;
-            decimals: number;
-        }|{
-            amount: number;
-            protocol: string;
-            to: string;
-        }[];
-        txId: string;
-        from: string;
-        timestamp: string;
-        totalAmount: number;
-        type: string;
-        notes?: string | null;
-    }[]} histories
+ * @property {{        to: {            amount: number;            image: string;            protocol: string;            tokenId: string;            sn: number;            to: string;            name: string;            decimals: number;        }|{            amount: number;            protocol: string;            to: string;        }[];        txId: string;        from: string;        timestamp: string;        totalAmount: number;        type: string;        notes?: string | null;    }[]} histories
  * @property {Object} meta
  * @property {number} meta.nextPageToken
  */
@@ -459,6 +408,102 @@ export type RelysiaRedeem = {
     txIds: string[];
     errors: any[];
 };
+/**
+ * @param tokenId The id of the token you are offering. Omit to offer BSV.
+ * @param amount The amount of tokenId or BSV you are offering.
+ * @param wantedAmount The amount of wantedTokenId or BSV you want.
+ * @param sn Serial number of the tokenId. Must include tokenId if specified.
+ * @param wantedTokenId The id of the token you want. Omit to want BSV. Cannot omit if tokenId is ommited.
+ * @param wantedSn Serial number of wantedTokenId. Must include wantedTokenId if specified.
+ * @typedef {Object} AtomicSwapOfferOpts
+ * @property {string} [tokenId]
+ * @property {number} amount
+ * @property {number} wantedAmount
+ * @property {number} [sn]
+ * @property {string} [wantedTokenId]
+ * @property {number} [wantedSn]
+ */
+export type AtomicSwapOfferOpts = {
+    tokenId?: string;
+    amount: number;
+    wantedAmount: number;
+    sn?: number;
+    wantedTokenId?: string;
+    wantedSn?: number;
+};
+/**
+ * @typedef {Object} RelysiaAtomicSwapOffer
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} contents
+ */
+export type RelysiaAtomicSwapOffer = {
+    status: status;
+    msg: string;
+    contents: string[];
+};
+/**
+ * @param swapHex Hex of the atomic swap
+ * @typedef {{
+ *     swapHex: string;
+ * }[]} AtomicSwapAcceptOpts
+ */
+export type AtomicSwapAcceptOpts = {
+    swapHex: string;
+}[];
+/**
+ * @typedef {Object} RelysiaAtomicSwapAccept
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} txIds
+ * @property {string[]} errors
+ */
+export type RelysiaAtomicSwapAccept = {
+    status: status;
+    msg: string;
+    txIds: string[];
+    errors: string[];
+};
+/**
+ * @typedef {Object} RelysiaAtomicSwapInspect
+ * @property {status} status
+ * @property {string} msg
+ * @property {Array<{        tokenOwnerAddress: string;        tokenCreatorAddress: string;        tokenSatoshis: number;        wantedSatoshis: number;        tokenImage: string;        serialNumber: number;        splittable: boolean;        contractTxid: string;        tokenId: string;        symbol: string;        tokenSupply: number;        verified: boolean;        tokenName: string;        tokenDescription?: string;    } | {        tokenOwnerAddress: string;        tokenCreatorAddress: string;        tokenSatoshis: number;        wantedSatoshis: number;        tokenId: string;        symbol: string;        sn: number;        splittable: boolean;        tokenImage: string;        contractTxid: string;        tokenName: string;        tokenDescription?: string;        verified: boolean;    }>} offerDetails
+ */
+export type RelysiaAtomicSwapInspect = {
+    status: status;
+    msg: string;
+    offerDetails: Array<{
+        tokenOwnerAddress: string;
+        tokenCreatorAddress: string;
+        tokenSatoshis: number;
+        wantedSatoshis: number;
+        tokenImage: string;
+        serialNumber: number;
+        splittable: boolean;
+        contractTxid: string;
+        tokenId: string;
+        symbol: string;
+        tokenSupply: number;
+        verified: boolean;
+        tokenName: string;
+        tokenDescription?: string;
+    } | {
+        tokenOwnerAddress: string;
+        tokenCreatorAddress: string;
+        tokenSatoshis: number;
+        wantedSatoshis: number;
+        tokenId: string;
+        symbol: string;
+        sn: number;
+        splittable: boolean;
+        tokenImage: string;
+        contractTxid: string;
+        tokenName: string;
+        tokenDescription?: string;
+        verified: boolean;
+    }>;
+};
 /** @typedef {'success' | 'error'} status */
 /**
  * @typedef {Object} RelysiaAuth
@@ -545,24 +590,14 @@ export type RelysiaRedeem = {
  * @typedef {Object} RelysiaLeaderboard
  * @property {status} status
  * @property {string} msg
- * @property {{
-        paymail?: string;
-        totalAmount: number;
-        uid: string;
-        rank: number;
-        displayName?: string;
-    }[]} leaderboard
+ * @property {{        paymail?: string;        totalAmount: number;        uid: string;        rank: number;        displayName?: string;    }[]} leaderboard
  * @property {number | null} nextPageToken
  */
 /**
  * @typedef {Object} RelysiaWallets
  * @property {status} status
  * @property {string} msg
- * @property {{
-        walletId: string;
-        walletTitle: string;
-        walletLogo: string | null;
-    }[]} wallets
+ * @property {{        walletId: string;        walletTitle: string;        walletLogo: string | null;    }[]} wallets
  */
 /**
  * @typedef {Object} RelysiaMnemonic
@@ -577,27 +612,7 @@ export type RelysiaRedeem = {
  * @property {Object} totalBalance
  * @property {string} totalBalance.currency
  * @property {number} totalBalance.balance
- * @property {{
-        protocol: "BSV";
-        balance: number;
-    }|{
-        Id: string;
-        protocol: string;
-        tokenId: string;
-        splittable: boolean;
-        splitable: boolean;
-        verified: boolean;
-        address: string;
-        satsPerToken: number;
-        symbol: string;
-        redeemAddr: string;
-        image: string;
-        amount: number;
-        supply: number;
-        decimals: number;
-        sn: number[];
-        name: string;
-    }[]} coins
+ * @property {{        protocol: "BSV";        balance: number;    }|{        Id: string;        protocol: string;        tokenId: string;        splittable: boolean;        splitable: boolean;        verified: boolean;        address: string;        satsPerToken: number;        symbol: string;        redeemAddr: string;        image: string;        amount: number;        supply: number;        decimals: number;        sn: number[];        name: string;    }[]} coins
  * @property {Object} meta
  * @property {number} meta.nextPageToken
  */
@@ -636,28 +651,7 @@ export type RelysiaRedeem = {
  * @typedef {Object} RelysiaHistory
  * @property {status} status
  * @property {string} msg
- * @property {{
-        to: {
-            amount: number;
-            image: string;
-            protocol: string;
-            tokenId: string;
-            sn: number;
-            to: string;
-            name: string;
-            decimals: number;
-        }|{
-            amount: number;
-            protocol: string;
-            to: string;
-        }[];
-        txId: string;
-        from: string;
-        timestamp: string;
-        totalAmount: number;
-        type: string;
-        notes?: string | null;
-    }[]} histories
+ * @property {{        to: {            amount: number;            image: string;            protocol: string;            tokenId: string;            sn: number;            to: string;            name: string;            decimals: number;        }|{            amount: number;            protocol: string;            to: string;        }[];        txId: string;        from: string;        timestamp: string;        totalAmount: number;        type: string;        notes?: string | null;    }[]} histories
  * @property {Object} meta
  * @property {number} meta.nextPageToken
  */
@@ -711,4 +705,44 @@ export type RelysiaRedeem = {
  * @property {string} msg
  * @property {string[]} txIds
  * @property {any[]} errors
+ */
+/**
+ * @param tokenId The id of the token you are offering. Omit to offer BSV.
+ * @param amount The amount of tokenId or BSV you are offering.
+ * @param wantedAmount The amount of wantedTokenId or BSV you want.
+ * @param sn Serial number of the tokenId. Must include tokenId if specified.
+ * @param wantedTokenId The id of the token you want. Omit to want BSV. Cannot omit if tokenId is ommited.
+ * @param wantedSn Serial number of wantedTokenId. Must include wantedTokenId if specified.
+ * @typedef {Object} AtomicSwapOfferOpts
+ * @property {string} [tokenId]
+ * @property {number} amount
+ * @property {number} wantedAmount
+ * @property {number} [sn]
+ * @property {string} [wantedTokenId]
+ * @property {number} [wantedSn]
+ */
+/**
+ * @typedef {Object} RelysiaAtomicSwapOffer
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} contents
+ */
+/**
+ * @param swapHex Hex of the atomic swap
+ * @typedef {{
+ *     swapHex: string;
+ * }[]} AtomicSwapAcceptOpts
+ */
+/**
+ * @typedef {Object} RelysiaAtomicSwapAccept
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} txIds
+ * @property {string[]} errors
+ */
+/**
+ * @typedef {Object} RelysiaAtomicSwapInspect
+ * @property {status} status
+ * @property {string} msg
+ * @property {Array<{        tokenOwnerAddress: string;        tokenCreatorAddress: string;        tokenSatoshis: number;        wantedSatoshis: number;        tokenImage: string;        serialNumber: number;        splittable: boolean;        contractTxid: string;        tokenId: string;        symbol: string;        tokenSupply: number;        verified: boolean;        tokenName: string;        tokenDescription?: string;    } | {        tokenOwnerAddress: string;        tokenCreatorAddress: string;        tokenSatoshis: number;        wantedSatoshis: number;        tokenId: string;        symbol: string;        sn: number;        splittable: boolean;        tokenImage: string;        contractTxid: string;        tokenName: string;        tokenDescription?: string;        verified: boolean;    }>} offerDetails
  */

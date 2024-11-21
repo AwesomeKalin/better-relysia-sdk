@@ -1,4 +1,4 @@
-import { AtomicSwapAcceptOpts, AtomicSwapOfferOpts, BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaAtomicSwapAccept, RelysiaAtomicSwapOffer, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from "./types";
+import { AtomicSwapAcceptOpts, AtomicSwapOfferOpts, BalanceOpts, CreateWalletOpt, HistoryOpts, RawTxOpts, RedeemOpts, RelysiaAsm, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, RelysiaAtomicSwapOffer, RelysiaAuth, RelysiaBalance, RelysiaBasic, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaHistory, RelysiaLeaderboard, RelysiaMnemonic, RelysiaRawTx, RelysiaRedeem, RelysiaSweep, RelysiaUserDetailsUnproccessed, RelysiaUserProfileData, RelysiaWallets, TransferSchema } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -1417,6 +1417,76 @@ export class BetterRelysiaSDK {
             this.retriesLeft--;
             if (this.retriesLeft > 0) {
                 return this.atomicSwapAccept(opts, walletId);
+            }
+
+            throw new Error('Reached Max Attempts');
+        }
+
+        return res.data;
+    }
+
+    /**
+     * Allows you to inspect an atomic swap to check the validity of it
+     * @param opts The function options
+     * @param walletId The wallet you wish to use
+     */
+    public async inspectAtomicSwap(opts: AtomicSwapAcceptOpts, walletId?: string) {
+        this.retriesLeft = this.retries;
+
+        const verifyCheck: void | false = await this.checkAuth();
+        if (verifyCheck === false) {
+            throw new Error('Reached Max Attempts');
+        }
+
+        const headers: Headers = this.postHeaders;
+
+        if (opts.length === 0) {
+            throw new Error('No options provided');
+        }
+
+        let body: BodyInit = JSON.stringify({ dataArray: opts });
+
+        const response: Response = await fetch('https://api.relysia.com/v1/inspect', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaAtomicSwapInspect> = await response.json();
+
+        if (res.data.msg === 'Called reply with an invalid status code: ERR_OUT_OF_RANGE') {
+            throw new Error('Invalid Atomic Swap Offer');
+        }
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            return this.inspectAtomicSwapRepeat(opts, walletId);
+        }
+
+        return res.data;
+    }
+
+    private async inspectAtomicSwapRepeat(opts: AtomicSwapAcceptOpts, walletId?: string) {
+        const headers: Headers = this.postHeaders;
+
+        if (opts.length === 0) {
+            throw new Error('No options provided');
+        }
+
+        let body: BodyInit = JSON.stringify({ dataArray: opts });
+
+        const response: Response = await fetch('https://api.relysia.com/v1/inspect', {
+            method: 'POST',
+            headers,
+            body,
+        });
+
+        const res: RelysiaBasic<RelysiaAtomicSwapInspect> = await response.json();
+
+        if (response.status !== 200) {
+            this.retriesLeft--;
+            if (this.retriesLeft > 0) {
+                return this.inspectAtomicSwapRepeat(opts, walletId);
             }
 
             throw new Error('Reached Max Attempts');
