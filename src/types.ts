@@ -124,7 +124,7 @@ export type RelysiaBalance = {
     coins: {
         protocol: "BSV";
         balance: number;
-    }|{
+    } | {
         Id: string;
         protocol: string;
         tokenId: string;
@@ -195,7 +195,7 @@ export type RelysiaHistory = {
             to: string;
             name: string;
             decimals: number;
-        }|{
+        } | {
             amount: number;
             protocol: string;
             to: string;
@@ -306,39 +306,34 @@ export type RelysiaAtomicSwapAccept = {
     errors: string[];
 };
 
+export type RelysiaAtomicSwapDetails = {
+    address: string;
+    protocol: 'STAS50' | 'STASFT' | 'STASAPPEND' | 'BSV' | 'STAS' | 'STAS-50' | 'STAS-20' | 'STAS-789';
+    amount: number;
+    verified?: boolean;
+    spent?: boolean;
+    tokenId?: string;
+    sn?: number;
+    image?: string;
+    tokenSymbol?: string;
+    contractTxid?: string;
+    name?: string;
+    tokenSupply?: number;
+    redeemAddress?: string;
+    splittable?: boolean;
+    satsPerToken?: number;
+    wantedProtocol: 'STAS50' | 'STASFT' | 'STASAPPEND' | 'BSV' | 'STAS' | 'STAS-50' | 'STAS-20' | 'STAS-789';
+    wantedAmount: number;
+    wantedTokenId?: string;
+    wantedSn?: number;
+    wantedName?: string;
+    wantedTokenSplittable?: boolean;
+}
+
 export type RelysiaAtomicSwapInspect = {
     status: status;
     msg: string;
-    offerDetails: Array<{
-        tokenOwnerAddress: string;
-        tokenCreatorAddress: string;
-        tokenSatoshis: number;
-        wantedSatoshis: number;
-        tokenImage: string;
-        serialNumber: number;
-        splittable: boolean;
-        contractTxid: string;
-        tokenId: string;
-        symbol: string;
-        tokenSupply: number;
-        verified: boolean;
-        tokenName: string;
-        tokenDescription?: string;
-    } | {
-        tokenOwnerAddress: string;
-        tokenCreatorAddress: string;
-        tokenSatoshis: number;
-        wantedSatoshis: number;
-        tokenId: string;
-        symbol: string;
-        sn: number;
-        splittable: boolean;
-        tokenImage: string;
-        contractTxid: string;
-        tokenName: string;
-        tokenDescription?: string;
-        verified: boolean;
-    }>;
+    offerDetails: RelysiaAtomicSwapDetails[];
 };
 
 /**

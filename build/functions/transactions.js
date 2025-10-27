@@ -1,6 +1,6 @@
 "use strict";
 /** @import { BetterRelysiaSDK } from '../object' */
-/** @import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID, RelysiaAcceptAtomicSwapWithID } from '../types' */
+/** @import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID, RelysiaAcceptAtomicSwapWithID, RelysiaAtomicSwapDetails } from '../types' */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rawTx = rawTx;
 exports.sweep = sweep;
@@ -598,7 +598,7 @@ async function acceptAtomicSwapWithIdRepeat(ids, walletID) {
  * @param {BetterRelysiaSDK} this
  * @param {AtomicSwapAcceptOpts} opts
  * @param {string} [walletId]
- * @returns {Promise<any>}
+ * @returns {Promise<RelysiaAtomicSwapDetails[]>}
  */
 async function inspectAtomicSwap(opts, walletId) {
     this.retriesLeft = this.retries;
@@ -611,7 +611,7 @@ async function inspectAtomicSwap(opts, walletId) {
         throw new Error('No options provided');
     }
     let body = JSON.stringify({ dataArray: opts });
-    const response = await fetch('https://api.relysia.com/v1/inspect', {
+    const response = await fetch('https://api.relysia.com/v2/inspect', {
         method: 'POST',
         headers,
         body,
@@ -624,13 +624,13 @@ async function inspectAtomicSwap(opts, walletId) {
         this.retriesLeft--;
         return inspectAtomicSwapRepeat.call(this, opts, walletId);
     }
-    return res.data;
+    return res.data.offerDetails;
 }
 /**
  * @param {BetterRelysiaSDK} this
  * @param {AtomicSwapAcceptOpts} opts
  * @param {string} [walletId]
- * @returns {Promise<any>}
+ * @returns {Promise<RelysiaAtomicSwapDetails[]>}
  */
 async function inspectAtomicSwapRepeat(opts, walletId) {
     const headers = this.postHeaders;
@@ -638,7 +638,7 @@ async function inspectAtomicSwapRepeat(opts, walletId) {
         throw new Error('No options provided');
     }
     let body = JSON.stringify({ dataArray: opts });
-    const response = await fetch('https://api.relysia.com/v1/inspect', {
+    const response = await fetch('https://api.relysia.com/v2/inspect', {
         method: 'POST',
         headers,
         body,
@@ -651,5 +651,5 @@ async function inspectAtomicSwapRepeat(opts, walletId) {
         }
         throw new Error('Reached Max Attempts');
     }
-    return res.data;
+    return res.data.offerDetails;
 }

@@ -122,7 +122,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @property {{
         protocol: "BSV";
         balance: number;
-    }|{
+    } | {
         Id: string;
         protocol: string;
         tokenId: string;
@@ -188,7 +188,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
             to: string;
             name: string;
             decimals: number;
-        }|{
+        } | {
             amount: number;
             protocol: string;
             to: string;
@@ -289,39 +289,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @property {string[]} errors
  */
 /**
+ * @typedef {Object} RelysiaAtomicSwapDetails
+ * @property {string} address
+ * @property {'STAS50' | 'STASFT' | 'STASAPPEND' | 'BSV' | 'STAS' | 'STAS-50' | 'STAS-20' | 'STAS-789'} protocol
+ * @property {number} amount
+ * @property {boolean} [verified]
+ * @property {boolean} [spent]
+ * @property {string} [tokenId]
+ * @property {number} [sn]
+ * @property {string} [image]
+ * @property {string} [tokenSymbol]
+ * @property {string} [contractTxid]
+ * @property {string} [name]
+ * @property {number} [tokenSupply]
+ * @property {string} [redeemAddress]
+ * @property {boolean} [splittable]
+ * @property {number} [satsPerToken]
+ * @property {'STAS50' | 'STASFT' | 'STASAPPEND' | 'BSV' | 'STAS' | 'STAS-50' | 'STAS-20' | 'STAS-789'} wantedProtocol
+ * @property {number} wantedAmount
+ * @property {string} [wantedTokenId]
+ * @property {number} [wantedSn]
+ * @property {string} [wantedName]
+ * @property {boolean} [wantedTokenSplittable]
+ */
+/**
  * @typedef {Object} RelysiaAtomicSwapInspect
  * @property {status} status
  * @property {string} msg
- * @property {Array<{
-        tokenOwnerAddress: string;
-        tokenCreatorAddress: string;
-        tokenSatoshis: number;
-        wantedSatoshis: number;
-        tokenImage: string;
-        serialNumber: number;
-        splittable: boolean;
-        contractTxid: string;
-        tokenId: string;
-        symbol: string;
-        tokenSupply: number;
-        verified: boolean;
-        tokenName: string;
-        tokenDescription?: string;
-    } | {
-        tokenOwnerAddress: string;
-        tokenCreatorAddress: string;
-        tokenSatoshis: number;
-        wantedSatoshis: number;
-        tokenId: string;
-        symbol: string;
-        sn: number;
-        splittable: boolean;
-        tokenImage: string;
-        contractTxid: string;
-        tokenName: string;
-        tokenDescription?: string;
-        verified: boolean;
-    }>} offerDetails
+ * @property {RelysiaAtomicSwapDetails[]} offerDetails
  */
 /**
  * @param tokenID The id of the token you are offering.

@@ -1,5 +1,5 @@
 import { BetterRelysiaSDK } from "../object";
-import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID, RelysiaAcceptAtomicSwapWithID } from "../types";
+import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID, RelysiaAcceptAtomicSwapWithID, RelysiaAtomicSwapDetails } from "../types";
 
 export async function rawTx(this: BetterRelysiaSDK, opts: RawTxOpts): Promise<RelysiaRawTx> {
     this.retriesLeft = this.retries;
@@ -665,7 +665,7 @@ async function acceptAtomicSwapWithIdRepeat(this: BetterRelysiaSDK, ids: string[
     return res.data.txIds;
 }
 
-export async function inspectAtomicSwap(this: BetterRelysiaSDK, opts: AtomicSwapAcceptOpts, walletId?: string) {
+export async function inspectAtomicSwap(this: BetterRelysiaSDK, opts: AtomicSwapAcceptOpts, walletId?: string): Promise<RelysiaAtomicSwapDetails[]> {
     this.retriesLeft = this.retries;
 
     const verifyCheck: void | false = await this.checkAuth();
@@ -681,7 +681,7 @@ export async function inspectAtomicSwap(this: BetterRelysiaSDK, opts: AtomicSwap
 
     let body: BodyInit = JSON.stringify({ dataArray: opts });
 
-    const response: Response = await fetch('https://api.relysia.com/v1/inspect', {
+    const response: Response = await fetch('https://api.relysia.com/v2/inspect', {
         method: 'POST',
         headers,
         body,
@@ -698,10 +698,10 @@ export async function inspectAtomicSwap(this: BetterRelysiaSDK, opts: AtomicSwap
         return inspectAtomicSwapRepeat.call(this, opts, walletId);
     }
 
-    return res.data;
+    return res.data.offerDetails;
 }
 
-async function inspectAtomicSwapRepeat(this: BetterRelysiaSDK, opts: AtomicSwapAcceptOpts, walletId?: string) {
+async function inspectAtomicSwapRepeat(this: BetterRelysiaSDK, opts: AtomicSwapAcceptOpts, walletId?: string): Promise<RelysiaAtomicSwapDetails[]> {
     const headers: Headers = this.postHeaders;
 
     if (opts.length === 0) {
@@ -710,7 +710,7 @@ async function inspectAtomicSwapRepeat(this: BetterRelysiaSDK, opts: AtomicSwapA
 
     let body: BodyInit = JSON.stringify({ dataArray: opts });
 
-    const response: Response = await fetch('https://api.relysia.com/v1/inspect', {
+    const response: Response = await fetch('https://api.relysia.com/v2/inspect', {
         method: 'POST',
         headers,
         body,
@@ -727,5 +727,5 @@ async function inspectAtomicSwapRepeat(this: BetterRelysiaSDK, opts: AtomicSwapA
         throw new Error('Reached Max Attempts');
     }
 
-    return res.data;
+    return res.data.offerDetails;
 }
