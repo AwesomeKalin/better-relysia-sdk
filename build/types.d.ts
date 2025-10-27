@@ -1,3 +1,5 @@
+/** @import { UUID } from 'crypto' */
+import { UUID } from "crypto";
 /** @typedef {'success' | 'error'} status */
 export type status = 'success' | 'error';
 /**
@@ -584,6 +586,59 @@ export type RelysiaAtomicSwapInspect = {
         verified: boolean;
     }>;
 };
+/**
+ * @param tokenID The id of the token you are offering.
+ * @param sn Serial Number of the token you are offering.
+ * @param amount The amount of BSV you wish to receive.
+ * @param type Must always be BSV.
+ * @param payment Any additional payments you wish to make (BSV only). Maximum of 2
+ * @typedef {Object} AtomicSwapWithIDOpts
+ * @property {string} tokenId
+ * @property {number} sn
+ * @property {number} amount
+ * @property {'BSV'} type
+ * @property {TransferSchema[]} [payment]
+ */
+export type AtomicSwapWithIDOpts = {
+    tokenId: string;
+    sn: number;
+    amount: number;
+    type: 'BSV';
+    payment?: TransferSchema[];
+};
+/**
+ * @typedef {Object} RelysiaAtomicSwapWithID
+ * @property {status} status
+ * @property {string} msg
+ * @property {{
+        swapId: UUID;
+        swapOfferHex: string;
+        tokenSatoshis: number;
+        tokenContractTxid: string;
+        payment: null;
+        prevTxid: string;
+        tokenId: string;
+        tokenOwnerAddress: string;
+        totalOutputSatoshis: number;
+        makerPublicKeyHash: string;
+    }[]} contents
+ */
+export type RelysiaAtomicSwapWithID = {
+    status: status;
+    msg: string;
+    contents: {
+        swapId: UUID;
+        swapOfferHex: string;
+        tokenSatoshis: number;
+        tokenContractTxid: string;
+        payment: null;
+        prevTxid: string;
+        tokenId: string;
+        tokenOwnerAddress: string;
+        totalOutputSatoshis: number;
+        makerPublicKeyHash: string;
+    }[];
+};
 /** @typedef {'success' | 'error'} status */
 /**
  * @typedef {Object} RelysiaAuth
@@ -905,4 +960,34 @@ export type RelysiaAtomicSwapInspect = {
         tokenDescription?: string;
         verified: boolean;
     }>} offerDetails
+ */
+/**
+ * @param tokenID The id of the token you are offering.
+ * @param sn Serial Number of the token you are offering.
+ * @param amount The amount of BSV you wish to receive.
+ * @param type Must always be BSV.
+ * @param payment Any additional payments you wish to make (BSV only). Maximum of 2
+ * @typedef {Object} AtomicSwapWithIDOpts
+ * @property {string} tokenId
+ * @property {number} sn
+ * @property {number} amount
+ * @property {'BSV'} type
+ * @property {TransferSchema[]} [payment]
+ */
+/**
+ * @typedef {Object} RelysiaAtomicSwapWithID
+ * @property {status} status
+ * @property {string} msg
+ * @property {{
+        swapId: UUID;
+        swapOfferHex: string;
+        tokenSatoshis: number;
+        tokenContractTxid: string;
+        payment: null;
+        prevTxid: string;
+        tokenId: string;
+        tokenOwnerAddress: string;
+        totalOutputSatoshis: number;
+        makerPublicKeyHash: string;
+    }[]} contents
  */

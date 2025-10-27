@@ -1,14 +1,7 @@
 /** @import { BetterRelysiaSDK } from '../object' */
-/** @import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect } from '../types' */
+/** @import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID } from '../types' */
 import { BetterRelysiaSDK } from "../object";
-import { RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept } from "../types";
-/**
- * @param {BetterRelysiaSDK} this
- * @param {string} privateKey
- * @param {string} [walletID]
- * @returns {Promise<RelysiaSweep>}
- */
-export declare function sweep(this: BetterRelysiaSDK, privateKey: string, walletID?: string): Promise<RelysiaSweep>;
+import { RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID } from "../types";
 /**
  * @param {BetterRelysiaSDK} this
  * @param {RawTxOpts} opts
@@ -17,12 +10,11 @@ export declare function sweep(this: BetterRelysiaSDK, privateKey: string, wallet
 export declare function rawTx(this: BetterRelysiaSDK, opts: RawTxOpts): Promise<RelysiaRawTx>;
 /**
  * @param {BetterRelysiaSDK} this
- * @param {string} asm
- * @param {number} amount
+ * @param {string} privateKey
  * @param {string} [walletID]
- * @returns {Promise<RelysiaAsm>}
+ * @returns {Promise<RelysiaSweep>}
  */
-export declare function asm(this: BetterRelysiaSDK, asm: string, amount: number, walletID?: string): Promise<RelysiaAsm>;
+export declare function sweep(this: BetterRelysiaSDK, privateKey: string, walletID?: string): Promise<RelysiaSweep>;
 /**
  * @param {BetterRelysiaSDK} this
  * @param {AtomicSwapOfferOpts[]} opts
@@ -37,6 +29,21 @@ export declare function atomicSwapOffer(this: BetterRelysiaSDK, opts: AtomicSwap
  * @returns {Promise<RelysiaAtomicSwapAccept>}
  */
 export declare function atomicSwapAccept(this: BetterRelysiaSDK, opts: AtomicSwapAcceptOpts, walletId?: string): Promise<RelysiaAtomicSwapAccept>;
+/**
+ * @param {BetterRelysiaSDK} this
+ * @param {string} asm
+ * @param {number} amount
+ * @param {string} [walletID]
+ * @returns {Promise<RelysiaAsm>}
+ */
+export declare function asm(this: BetterRelysiaSDK, asm: string, amount: number, walletID?: string): Promise<RelysiaAsm>;
+/**
+ * @param {BetterRelysiaSDK} this
+ * @param {AtomicSwapWithIDOpts[]} opts
+ * @param {string} [walletID]
+ * @returns {Promise<RelysiaAtomicSwapWithID>}
+ */
+export declare function atomicSwapWithId(this: BetterRelysiaSDK, opts: AtomicSwapWithIDOpts[], walletID?: string): Promise<RelysiaAtomicSwapWithID>;
 /**
  * @param {BetterRelysiaSDK} this
  * @param {AtomicSwapAcceptOpts} opts

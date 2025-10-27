@@ -1,5 +1,5 @@
 "use strict";
-/** @import { RelysiaAuth, RelysiaUserProfileData, RelysiaBasic, CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect } from './types' */
+/** @import { RelysiaAuth, RelysiaUserProfileData, RelysiaBasic, CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID } from './types' */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BetterRelysiaSDK = void 0;
 const identity_1 = require("./functions/identity");
@@ -186,6 +186,16 @@ class BetterRelysiaSDK {
      */
     async inspectAtomicSwap(opts, walletId) {
         return transactions_1.inspectAtomicSwap.call(this, opts, walletId);
+    }
+    /**
+     * Create an atomic swap that uses an id instead of a swap hex
+     * @public
+     * @param {AtomicSwapWithIDOpts[]} opts The function options
+     * @param {string} [walletID] The wallet you wish to use
+     * @returns {Promise<RelysiaAtomicSwapWithID>}
+     */
+    async atomicSwapWithId(opts, walletID) {
+        return transactions_1.atomicSwapWithId.call(this, opts, walletID);
     }
 }
 exports.BetterRelysiaSDK = BetterRelysiaSDK;

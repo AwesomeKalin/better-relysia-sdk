@@ -1,5 +1,5 @@
-/** @import { RelysiaAuth, RelysiaUserProfileData, RelysiaBasic, CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect } from './types' */
-import { RelysiaUserProfileData, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept } from "./types";
+/** @import { RelysiaAuth, RelysiaUserProfileData, RelysiaBasic, CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID } from './types' */
+import { RelysiaUserProfileData, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID } from "./types";
 export declare class BetterRelysiaSDK {
     authToken: string;
     authTimestamp: number;
@@ -127,4 +127,12 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<any>}
      */
     inspectAtomicSwap(opts: AtomicSwapAcceptOpts, walletId?: string): Promise<any>;
+    /**
+     * Create an atomic swap that uses an id instead of a swap hex
+     * @public
+     * @param {AtomicSwapWithIDOpts[]} opts The function options
+     * @param {string} [walletID] The wallet you wish to use
+     * @returns {Promise<RelysiaAtomicSwapWithID>}
+     */
+    atomicSwapWithId(opts: AtomicSwapWithIDOpts[], walletID?: string): Promise<RelysiaAtomicSwapWithID>;
 }

@@ -1,82 +1,5 @@
 import { BetterRelysiaSDK } from "../object";
-import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect } from "../types";
-
-export async function sweep(this: BetterRelysiaSDK, privateKey: string, walletID?: string): Promise<RelysiaSweep> {
-    this.retriesLeft = this.retries;
-
-    const verifyCheck: void | false = await this.checkAuth();
-    if (verifyCheck === false) {
-        throw new Error('Reached Max Attempts');
-    }
-
-    const headers: Headers = this.postHeaders;
-
-    if (walletID !== undefined) {
-        headers.set('walletID', walletID);
-    }
-
-    const body: BodyInit = JSON.stringify({ privateKey });
-
-    const response: Response = await fetch('https://api.relysia.com/v1/sweep', {
-        method: 'POST',
-        headers,
-        body,
-    });
-
-    const res: RelysiaBasic<RelysiaSweep> = await response.json();
-
-    if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
-        throw new Error('Non-existant wallet');
-    }
-
-    if (res.data.msg === 'Not a valid private key value !') {
-        throw new Error('Not a valid private key');
-    }
-
-    if (response.status !== 200) {
-        this.retriesLeft--;
-        return sweepRepeat.call(this, privateKey, walletID);
-    }
-
-    return res.data;
-}
-
-async function sweepRepeat(this: BetterRelysiaSDK, privateKey: string, walletID?: string): Promise<RelysiaSweep> {
-    const headers: Headers = this.postHeaders;
-
-    if (walletID !== undefined) {
-        headers.set('walletID', walletID);
-    }
-
-    const body: BodyInit = JSON.stringify({ privateKey });
-
-    const response: Response = await fetch('https://api.relysia.com/v1/sweep', {
-        method: 'POST',
-        headers,
-        body,
-    });
-
-    const res: RelysiaBasic<RelysiaSweep> = await response.json();
-
-    if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
-        throw new Error('Non-existant wallet');
-    }
-
-    if (res.data.msg === 'Not a valid private key value !') {
-        throw new Error('Not a valid private key');
-    }
-
-    if (response.status !== 200) {
-        this.retriesLeft--;
-        if (this.retriesLeft > 0) {
-            return sweepRepeat.call(this, privateKey, walletID);
-        }
-
-        throw new Error('Reached Max Attempts');
-    }
-
-    return res.data;
-}
+import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID } from "../types";
 
 export async function rawTx(this: BetterRelysiaSDK, opts: RawTxOpts): Promise<RelysiaRawTx> {
     this.retriesLeft = this.retries;
@@ -161,7 +84,7 @@ async function rawTxRepeat(this: BetterRelysiaSDK, opts: RawTxOpts): Promise<Rel
     return res.data;
 }
 
-export async function asm(this: BetterRelysiaSDK, asm: string, amount: number, walletID?: string): Promise<RelysiaAsm> {
+export async function sweep(this: BetterRelysiaSDK, privateKey: string, walletID?: string): Promise<RelysiaSweep> {
     this.retriesLeft = this.retries;
 
     const verifyCheck: void | false = await this.checkAuth();
@@ -175,75 +98,61 @@ export async function asm(this: BetterRelysiaSDK, asm: string, amount: number, w
         headers.set('walletID', walletID);
     }
 
-    const body: BodyInit = JSON.stringify({
-        dataArray: [
-            {
-                asm,
-                amount,
-            }
-        ]
-    });
+    const body: BodyInit = JSON.stringify({ privateKey });
 
-    const response: Response = await fetch('https://api.relysia.com/v1/asm', {
+    const response: Response = await fetch('https://api.relysia.com/v1/sweep', {
         method: 'POST',
         headers,
         body,
     });
 
-    const res: RelysiaBasic<RelysiaAsm> = await response.json();
+    const res: RelysiaBasic<RelysiaSweep> = await response.json();
 
     if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
         throw new Error('Non-existant wallet');
     }
 
-    if (res.data.msg === 'Insufficient Balance') {
-        throw new Error('Insufficient Balance');
+    if (res.data.msg === 'Not a valid private key value !') {
+        throw new Error('Not a valid private key');
     }
 
     if (response.status !== 200) {
         this.retriesLeft--;
-        return asmRepeat.call(this, asm, amount, walletID);
+        return sweepRepeat.call(this, privateKey, walletID);
     }
 
     return res.data;
 }
 
-async function asmRepeat(this: BetterRelysiaSDK, asm: string, amount: number, walletID?: string): Promise<RelysiaAsm> {
+async function sweepRepeat(this: BetterRelysiaSDK, privateKey: string, walletID?: string): Promise<RelysiaSweep> {
     const headers: Headers = this.postHeaders;
 
     if (walletID !== undefined) {
         headers.set('walletID', walletID);
     }
 
-    const body: BodyInit = JSON.stringify({
-        dataArray: [
-            {
-                asm,
-                amount,
-            }
-        ]
-    });
+    const body: BodyInit = JSON.stringify({ privateKey });
 
-    const response: Response = await fetch('https://api.relysia.com/v1/asm', {
+    const response: Response = await fetch('https://api.relysia.com/v1/sweep', {
         method: 'POST',
         headers,
         body,
     });
 
-    const res: RelysiaBasic<RelysiaAsm> = await response.json();
+    const res: RelysiaBasic<RelysiaSweep> = await response.json();
 
     if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
         throw new Error('Non-existant wallet');
     }
 
-    if (res.data.msg === 'Insufficient Balance') {
-        throw new Error('Insufficient Balance');
+    if (res.data.msg === 'Not a valid private key value !') {
+        throw new Error('Not a valid private key');
     }
 
     if (response.status !== 200) {
         this.retriesLeft--;
         if (this.retriesLeft > 0) {
-            return asmRepeat.call(this, asm, amount, walletID);
+            return sweepRepeat.call(this, privateKey, walletID);
         }
 
         throw new Error('Reached Max Attempts');
@@ -451,6 +360,214 @@ async function atomicSwapAcceptRepeat(this: BetterRelysiaSDK, opts: AtomicSwapAc
         this.retriesLeft--;
         if (this.retriesLeft > 0) {
             return atomicSwapAccept.call(this, opts, walletId);
+        }
+
+        throw new Error('Reached Max Attempts');
+    }
+
+    return res.data;
+}
+
+export async function asm(this: BetterRelysiaSDK, asm: string, amount: number, walletID?: string): Promise<RelysiaAsm> {
+    this.retriesLeft = this.retries;
+
+    const verifyCheck: void | false = await this.checkAuth();
+    if (verifyCheck === false) {
+        throw new Error('Reached Max Attempts');
+    }
+
+    const headers: Headers = this.postHeaders;
+
+    if (walletID !== undefined) {
+        headers.set('walletID', walletID);
+    }
+
+    const body: BodyInit = JSON.stringify({
+        dataArray: [
+            {
+                asm,
+                amount,
+            }
+        ]
+    });
+
+    const response: Response = await fetch('https://api.relysia.com/v1/asm', {
+        method: 'POST',
+        headers,
+        body,
+    });
+
+    const res: RelysiaBasic<RelysiaAsm> = await response.json();
+
+    if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+        throw new Error('Non-existant wallet');
+    }
+
+    if (res.data.msg === 'Insufficient Balance') {
+        throw new Error('Insufficient Balance');
+    }
+
+    if (response.status !== 200) {
+        this.retriesLeft--;
+        return asmRepeat.call(this, asm, amount, walletID);
+    }
+
+    return res.data;
+}
+
+async function asmRepeat(this: BetterRelysiaSDK, asm: string, amount: number, walletID?: string): Promise<RelysiaAsm> {
+    const headers: Headers = this.postHeaders;
+
+    if (walletID !== undefined) {
+        headers.set('walletID', walletID);
+    }
+
+    const body: BodyInit = JSON.stringify({
+        dataArray: [
+            {
+                asm,
+                amount,
+            }
+        ]
+    });
+
+    const response: Response = await fetch('https://api.relysia.com/v1/asm', {
+        method: 'POST',
+        headers,
+        body,
+    });
+
+    const res: RelysiaBasic<RelysiaAsm> = await response.json();
+
+    if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+        throw new Error('Non-existant wallet');
+    }
+
+    if (res.data.msg === 'Insufficient Balance') {
+        throw new Error('Insufficient Balance');
+    }
+
+    if (response.status !== 200) {
+        this.retriesLeft--;
+        if (this.retriesLeft > 0) {
+            return asmRepeat.call(this, asm, amount, walletID);
+        }
+
+        throw new Error('Reached Max Attempts');
+    }
+
+    return res.data;
+}
+
+export async function atomicSwapWithId(this: BetterRelysiaSDK, opts: AtomicSwapWithIDOpts[], walletID?: string): Promise<RelysiaAtomicSwapWithID> {
+    this.retriesLeft = this.retries;
+
+    const verifyCheck: void | false = await this.checkAuth();
+    if (verifyCheck === false) {
+        throw new Error('Reached Max Attempts');
+    }
+
+    const headers: Headers = this.postHeaders;
+
+    if (walletID !== undefined) {
+        headers.set('walletID', walletID);
+    }
+
+    for (var i = 0; i < opts.length; i++) {
+        if (opts[i].payment.length > 2) {
+            throw new Error('Provided more than 2 additional payments');
+        }
+
+        if (opts[i].payment !== undefined && (opts[i].payment[0].tokenId !== undefined || opts[i].payment[1].tokenId !== undefined)) {
+            throw new Error('Additional payments can only be made with BSV');
+        }
+    }
+
+    const body: BodyInit = JSON.stringify({
+        dataArray: opts
+    });
+
+    const response: Response = await fetch('https://api.relysia.com/v1/exchangeOffer', {
+        method: 'POST',
+        headers,
+        body,
+    });
+
+    const res: RelysiaBasic<RelysiaAtomicSwapWithID> = await response.json();
+
+    if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+        throw new Error('Non-existant wallet');
+    }
+
+    if (res.data.msg === 'Insufficient Balance') {
+        throw new Error('Insufficient Balance');
+    }
+
+    if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+        throw new Error('Insufficient Balance');
+    }
+
+    if (res.data.msg.startsWith('NFT does not exist with ')) {
+        throw new Error('Token does not exist');
+    }
+
+    if (response.status !== 200) {
+        this.retriesLeft--;
+        return atomicSwapWithIdRepeat.call(this, opts, walletID);
+    }
+
+    return res.data;
+}
+
+async function atomicSwapWithIdRepeat(this: BetterRelysiaSDK, opts: AtomicSwapWithIDOpts[], walletID?: string): Promise<RelysiaAtomicSwapWithID> {
+    const headers: Headers = this.postHeaders;
+
+    if (walletID !== undefined) {
+        headers.set('walletID', walletID);
+    }
+
+    for (var i = 0; i < opts.length; i++) {
+        if (opts[i].payment.length > 2) {
+            throw new Error('Provided more than 2 additional payments');
+        }
+
+        if (opts[i].payment !== undefined && (opts[i].payment[0].tokenId !== undefined || opts[i].payment[1].tokenId !== undefined)) {
+            throw new Error('Additional payments can only be made with BSV');
+        }
+    }
+
+    const body: BodyInit = JSON.stringify({
+        dataArray: opts
+    });
+
+    const response: Response = await fetch('https://api.relysia.com/v1/exchangeOffer', {
+        method: 'POST',
+        headers,
+        body,
+    });
+
+    const res: RelysiaBasic<RelysiaAtomicSwapWithID> = await response.json();
+
+    if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+        throw new Error('Non-existant wallet');
+    }
+
+    if (res.data.msg === 'Insufficient Balance') {
+        throw new Error('Insufficient Balance');
+    }
+
+    if (res.data.msg.startsWith('Insufficient funds for tokenId : ')) {
+        throw new Error('Insufficient Balance');
+    }
+
+    if (res.data.msg.startsWith('NFT does not exist with ')) {
+        throw new Error('Token does not exist');
+    }
+
+    if (response.status !== 200) {
+        this.retriesLeft--;
+        if (this.retriesLeft > 0) {
+            return atomicSwapWithIdRepeat.call(this, opts, walletID);
         }
 
         throw new Error('Reached Max Attempts');
