@@ -1,6 +1,6 @@
 "use strict";
 /** @import { BetterRelysiaSDK } from '../object' */
-/** @import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID, RelysiaAcceptAtomicSwapWithID, RelysiaAtomicSwapDetails } from '../types' */
+/** @import { RelysiaSweep, RelysiaBasic, RawTxOpts, RelysiaRawTx, RelysiaAsm, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID, RelysiaAcceptAtomicSwapWithID, RelysiaAtomicSwapDetails, PayInvoiceOpts } from '../types' */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rawTx = rawTx;
 exports.sweep = sweep;
@@ -9,6 +9,7 @@ exports.atomicSwapAccept = atomicSwapAccept;
 exports.asm = asm;
 exports.atomicSwapWithId = atomicSwapWithId;
 exports.acceptAtomicSwapWithId = acceptAtomicSwapWithId;
+exports.payInvoice = payInvoice;
 exports.inspectAtomicSwap = inspectAtomicSwap;
 /**
  * @param {BetterRelysiaSDK} this
@@ -593,6 +594,79 @@ async function acceptAtomicSwapWithIdRepeat(ids, walletID) {
         throw new Error('Reached Max Attempts');
     }
     return res.data.txIds;
+}
+/**
+ * @param {BetterRelysiaSDK} this
+ * @param {PayInvoiceOpts} opts
+ * @param {string} [walletID]
+ * @returns {Promise<string>}
+ */
+async function payInvoice(opts, walletID) {
+    this.retriesLeft = this.retries;
+    const verifyCheck = await this.checkAuth();
+    if (verifyCheck === false) {
+        throw new Error('Reached Max Attempts');
+    }
+    const headers = this.postHeaders;
+    if (walletID !== undefined) {
+        headers.set('walletID', walletID);
+    }
+    const body = JSON.stringify(opts);
+    const response = await fetch('https://api.relysia.com/v1/pay', {
+        method: 'POST',
+        headers,
+        body,
+    });
+    const res = await response.json();
+    if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+        throw new Error('Non-existant wallet');
+    }
+    if (res.data.msg === 'Insufficient Balance') {
+        throw new Error('Insufficient Balance');
+    }
+    if (response.status !== 200) {
+        this.retriesLeft--;
+        return payInvoiceRepeat.call(this, opts, walletID);
+    }
+    return res.data.txid;
+}
+/**
+ * @param {BetterRelysiaSDK} this
+ * @param {PayInvoiceOpts} opts
+ * @param {string} [walletID]
+ * @returns {Promise<string>}
+ */
+async function payInvoiceRepeat(opts, walletID) {
+    this.retriesLeft = this.retries;
+    const verifyCheck = await this.checkAuth();
+    if (verifyCheck === false) {
+        throw new Error('Reached Max Attempts');
+    }
+    const headers = this.postHeaders;
+    if (walletID !== undefined) {
+        headers.set('walletID', walletID);
+    }
+    const body = JSON.stringify(opts);
+    const response = await fetch('https://api.relysia.com/v1/pay', {
+        method: 'POST',
+        headers,
+        body,
+    });
+    const res = await response.json();
+    if (res.data.msg === `Error while syncing with walletId: ${walletID}`) {
+        throw new Error('Non-existant wallet');
+    }
+    if (res.data.msg === 'Insufficient Balance') {
+        throw new Error('Insufficient Balance');
+    }
+    if (response.status !== 200) {
+        this.retriesLeft--;
+        if (this.retriesLeft > 0) {
+            return payInvoiceRepeat.call(this, opts, walletID);
+        }
+        throw new Error('Reached Max Attempts');
+    }
+    return res.data.txid;
 }
 /**
  * @param {BetterRelysiaSDK} this

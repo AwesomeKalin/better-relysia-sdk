@@ -354,3 +354,40 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @property {string} msg
  * @property {string[]} txIds
  */
+/**
+ * @param uri Invoice URI
+ * @param type Type of address to send to
+ * @param outputs Additional outputs
+ * @param memo Additional data
+ * @param isBSV Is it BSV or a token?
+ * @typedef {Object} PayInvoiceOpts
+ * @property {string} uri
+ * @property {string} type
+ * @property {string} mainProtocol
+ * @property {{
+        script: string;
+        satoshis: number;
+    }[]} [outputs]
+ * @property {{
+        txid: string;
+        vout: number;
+        satoshis: number;
+        scriptPubKey?: string;
+        scriptType?: string;
+        scriptSig: string;
+    }[]} [inputs]
+ * @property {string} [network]
+ * @property {string} [paymentUrl]
+ * @property {number} [creationTimeStamp]
+ * @property {number} [expirationTimeStamp]
+ * @property {string} [memo]
+ * @property {boolean} [isBSV]
+ * @property {string} [peer]
+ * @property {string} [peerData]
+ * @property {string} [peerProtocol]
+ * @property {Object} [beneficiary]
+ * @property {string} beneficiary.name
+ * @property {string} beneficiary.email
+ * @property {string} beneficiary.address
+ * @property {string} beneficiary.paymentReference
+ */

@@ -639,6 +639,75 @@ export type RelysiaAcceptAtomicSwapWithID = {
     msg: string;
     txIds: string[];
 };
+/**
+ * @param uri Invoice URI
+ * @param type Type of address to send to
+ * @param outputs Additional outputs
+ * @param memo Additional data
+ * @param isBSV Is it BSV or a token?
+ * @typedef {Object} PayInvoiceOpts
+ * @property {string} uri
+ * @property {string} type
+ * @property {string} mainProtocol
+ * @property {{
+        script: string;
+        satoshis: number;
+    }[]} [outputs]
+ * @property {{
+        txid: string;
+        vout: number;
+        satoshis: number;
+        scriptPubKey?: string;
+        scriptType?: string;
+        scriptSig: string;
+    }[]} [inputs]
+ * @property {string} [network]
+ * @property {string} [paymentUrl]
+ * @property {number} [creationTimeStamp]
+ * @property {number} [expirationTimeStamp]
+ * @property {string} [memo]
+ * @property {boolean} [isBSV]
+ * @property {string} [peer]
+ * @property {string} [peerData]
+ * @property {string} [peerProtocol]
+ * @property {Object} [beneficiary]
+ * @property {string} beneficiary.name
+ * @property {string} beneficiary.email
+ * @property {string} beneficiary.address
+ * @property {string} beneficiary.paymentReference
+ */
+export type PayInvoiceOpts = {
+    uri: string;
+    type: string;
+    mainProtocol: string;
+    outputs?: {
+        script: string;
+        satoshis: number;
+    }[];
+    inputs?: {
+        txid: string;
+        vout: number;
+        satoshis: number;
+        scriptPubKey?: string;
+        scriptType?: string;
+        scriptSig: string;
+    }[];
+    network?: string;
+    paymentUrl?: string;
+    creationTimeStamp?: number;
+    expirationTimeStamp?: number;
+    memo?: string;
+    isBSV?: boolean;
+    peer?: string;
+    peerData?: string;
+    peerProtocol?: string;
+    beneficiary?: {
+        name: string;
+        email: string;
+        address: string;
+        paymentReference: string;
+    };
+};
 /** @typedef {'success' | 'error'} status */
 /**
  * @typedef {Object} RelysiaAuth
@@ -991,4 +1060,41 @@ export type RelysiaAcceptAtomicSwapWithID = {
  * @property {status} status
  * @property {string} msg
  * @property {string[]} txIds
+ */
+/**
+ * @param uri Invoice URI
+ * @param type Type of address to send to
+ * @param outputs Additional outputs
+ * @param memo Additional data
+ * @param isBSV Is it BSV or a token?
+ * @typedef {Object} PayInvoiceOpts
+ * @property {string} uri
+ * @property {string} type
+ * @property {string} mainProtocol
+ * @property {{
+        script: string;
+        satoshis: number;
+    }[]} [outputs]
+ * @property {{
+        txid: string;
+        vout: number;
+        satoshis: number;
+        scriptPubKey?: string;
+        scriptType?: string;
+        scriptSig: string;
+    }[]} [inputs]
+ * @property {string} [network]
+ * @property {string} [paymentUrl]
+ * @property {number} [creationTimeStamp]
+ * @property {number} [expirationTimeStamp]
+ * @property {string} [memo]
+ * @property {boolean} [isBSV]
+ * @property {string} [peer]
+ * @property {string} [peerData]
+ * @property {string} [peerProtocol]
+ * @property {Object} [beneficiary]
+ * @property {string} beneficiary.name
+ * @property {string} beneficiary.email
+ * @property {string} beneficiary.address
+ * @property {string} beneficiary.paymentReference
  */

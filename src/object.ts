@@ -1,8 +1,8 @@
 import { getUserProfile } from "./functions/identity";
 import { redeemToken } from "./functions/smart";
-import { sweep, asm as assembly, rawTx, atomicSwapOffer, atomicSwapAccept, inspectAtomicSwap, atomicSwapWithId, acceptAtomicSwapWithId } from "./functions/transactions";
+import { sweep, asm as assembly, rawTx, atomicSwapOffer, atomicSwapAccept, inspectAtomicSwap, atomicSwapWithId, acceptAtomicSwapWithId, payInvoice } from "./functions/transactions";
 import { balance, getAddress, getAllAddressess, leaderboard, mnemonic, wallets, history } from "./functions/wallets";
-import { RelysiaAuth, RelysiaUserProfileData, RelysiaBasic, CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID } from "./types";
+import { RelysiaAuth, RelysiaUserProfileData, RelysiaBasic, CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID, PayInvoiceOpts } from "./types";
 
 export class BetterRelysiaSDK {
     authToken: string;
@@ -187,5 +187,14 @@ export class BetterRelysiaSDK {
      */
     public async acceptAtomicSwapWithId(ids: string[], walletID?: string): Promise<string[]> {
         return acceptAtomicSwapWithId.call(this, ids, walletID);
+    }
+
+    /**
+     * Allows you to pay a generated invoice
+     * @param opts Invoice options
+     * @param walletID The wallet you wish to use
+     */
+    public async payInvoice(opts: PayInvoiceOpts, walletID?: string): Promise<string> {
+        return payInvoice.call(this, opts, walletID);
     }
 }

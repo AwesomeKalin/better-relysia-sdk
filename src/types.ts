@@ -373,3 +373,43 @@ export type RelysiaAcceptAtomicSwapWithID = {
     msg: string;
     txIds: string[];
 };
+
+/**
+ * @param uri Invoice URI
+ * @param type Type of address to send to
+ * @param outputs Additional outputs
+ * @param memo Additional data
+ * @param isBSV Is it BSV or a token?
+ */
+export type PayInvoiceOpts = {
+    uri: string;
+    type: string;
+    mainProtocol: string;
+    outputs?: {
+        script: string;
+        satoshis: number;
+    }[];
+    inputs?: {
+        txid: string;
+        vout: number;
+        satoshis: number;
+        scriptPubKey?: string;
+        scriptType?: string;
+        scriptSig: string;
+    }[];
+    network?: string;
+    paymentUrl?: string;
+    creationTimeStamp?: number;
+    expirationTimeStamp?: number;
+    memo?: string;
+    isBSV?: boolean;
+    peer?: string;
+    peerData?: string;
+    peerProtocol?: string;
+    beneficiary?: {
+        name: string;
+        email: string;
+        address: string;
+        paymentReference: string;
+    };
+};

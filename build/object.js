@@ -1,5 +1,5 @@
 "use strict";
-/** @import { RelysiaAuth, RelysiaUserProfileData, RelysiaBasic, CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID } from './types' */
+/** @import { RelysiaAuth, RelysiaUserProfileData, RelysiaBasic, CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID, PayInvoiceOpts } from './types' */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BetterRelysiaSDK = void 0;
 const identity_1 = require("./functions/identity");
@@ -206,6 +206,16 @@ class BetterRelysiaSDK {
      */
     async acceptAtomicSwapWithId(ids, walletID) {
         return transactions_1.acceptAtomicSwapWithId.call(this, ids, walletID);
+    }
+    /**
+     * Allows you to pay a generated invoice
+     * @public
+     * @param {PayInvoiceOpts} opts Invoice options
+     * @param {string} [walletID] The wallet you wish to use
+     * @returns {Promise<string>}
+     */
+    async payInvoice(opts, walletID) {
+        return transactions_1.payInvoice.call(this, opts, walletID);
     }
 }
 exports.BetterRelysiaSDK = BetterRelysiaSDK;
