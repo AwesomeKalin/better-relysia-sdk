@@ -353,3 +353,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
         makerPublicKeyHash: string;
     }[]} contents
  */
+/**
+ * @typedef {Object} RelysiaAcceptAtomicSwapWithID
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} txIds
+ */

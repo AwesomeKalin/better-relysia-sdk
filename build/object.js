@@ -197,5 +197,15 @@ class BetterRelysiaSDK {
     async atomicSwapWithId(opts, walletID) {
         return transactions_1.atomicSwapWithId.call(this, opts, walletID);
     }
+    /**
+     * Accepts an atomic swap that uses an id instead of a swap hex. Returns an array of strings
+     * @public
+     * @param {string[]} ids Array of swap ids
+     * @param {string} [walletID] The wallet you wish to use
+     * @returns {Promise<string[]>}
+     */
+    async acceptAtomicSwapWithId(ids, walletID) {
+        return transactions_1.acceptAtomicSwapWithId.call(this, ids, walletID);
+    }
 }
 exports.BetterRelysiaSDK = BetterRelysiaSDK;

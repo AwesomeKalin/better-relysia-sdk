@@ -639,6 +639,17 @@ export type RelysiaAtomicSwapWithID = {
         makerPublicKeyHash: string;
     }[];
 };
+/**
+ * @typedef {Object} RelysiaAcceptAtomicSwapWithID
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} txIds
+ */
+export type RelysiaAcceptAtomicSwapWithID = {
+    status: status;
+    msg: string;
+    txIds: string[];
+};
 /** @typedef {'success' | 'error'} status */
 /**
  * @typedef {Object} RelysiaAuth
@@ -990,4 +1001,10 @@ export type RelysiaAtomicSwapWithID = {
         totalOutputSatoshis: number;
         makerPublicKeyHash: string;
     }[]} contents
+ */
+/**
+ * @typedef {Object} RelysiaAcceptAtomicSwapWithID
+ * @property {status} status
+ * @property {string} msg
+ * @property {string[]} txIds
  */

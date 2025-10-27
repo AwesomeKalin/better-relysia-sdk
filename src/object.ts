@@ -1,6 +1,6 @@
 import { getUserProfile } from "./functions/identity";
 import { redeemToken } from "./functions/smart";
-import { sweep, asm as assembly, rawTx, atomicSwapOffer, atomicSwapAccept, inspectAtomicSwap, atomicSwapWithId } from "./functions/transactions";
+import { sweep, asm as assembly, rawTx, atomicSwapOffer, atomicSwapAccept, inspectAtomicSwap, atomicSwapWithId, acceptAtomicSwapWithId } from "./functions/transactions";
 import { balance, getAddress, getAllAddressess, leaderboard, mnemonic, wallets, history } from "./functions/wallets";
 import { RelysiaAuth, RelysiaUserProfileData, RelysiaBasic, CreateWalletOpt, RelysiaCreateWallet, RelysiaGetAddress, RelysiaGetAllAddress, RelysiaLeaderboard, RelysiaWallets, RelysiaMnemonic, BalanceOpts, RelysiaBalance, HistoryOpts, RelysiaHistory, RelysiaSweep, RawTxOpts, RelysiaRawTx, RelysiaAsm, RedeemOpts, RelysiaRedeem, AtomicSwapOfferOpts, RelysiaAtomicSwapOffer, AtomicSwapAcceptOpts, RelysiaAtomicSwapAccept, RelysiaAtomicSwapInspect, AtomicSwapWithIDOpts, RelysiaAtomicSwapWithID } from "./types";
 
@@ -178,5 +178,14 @@ export class BetterRelysiaSDK {
      */
     public async atomicSwapWithId(opts: AtomicSwapWithIDOpts[], walletID?: string): Promise<RelysiaAtomicSwapWithID> {
         return atomicSwapWithId.call(this, opts, walletID);
+    }
+
+    /**
+     * Accepts an atomic swap that uses an id instead of a swap hex. Returns an array of strings
+     * @param ids Array of swap ids
+     * @param walletID The wallet you wish to use
+     */
+    public async acceptAtomicSwapWithId(ids: string[], walletID?: string): Promise<string[]> {
+        return acceptAtomicSwapWithId.call(this, ids, walletID);
     }
 }

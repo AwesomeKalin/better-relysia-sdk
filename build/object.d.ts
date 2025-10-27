@@ -135,4 +135,12 @@ export declare class BetterRelysiaSDK {
      * @returns {Promise<RelysiaAtomicSwapWithID>}
      */
     atomicSwapWithId(opts: AtomicSwapWithIDOpts[], walletID?: string): Promise<RelysiaAtomicSwapWithID>;
+    /**
+     * Accepts an atomic swap that uses an id instead of a swap hex. Returns an array of strings
+     * @public
+     * @param {string[]} ids Array of swap ids
+     * @param {string} [walletID] The wallet you wish to use
+     * @returns {Promise<string[]>}
+     */
+    acceptAtomicSwapWithId(ids: string[], walletID?: string): Promise<string[]>;
 }

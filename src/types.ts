@@ -372,3 +372,9 @@ export type RelysiaAtomicSwapWithID = {
         makerPublicKeyHash: string;
     }[];
 };
+
+export type RelysiaAcceptAtomicSwapWithID = {
+    status: status;
+    msg: string;
+    txIds: string[];
+};
